@@ -12,7 +12,7 @@ def search_cities(q: str = Query(..., min_length=1)):
 
     results = [
         {
-            "city": city["city"],
+            "city": city["city_ascii"],
             "country": city["country"],
             "lat": float(city["lat"]),
             "lng": float(city["lng"])
