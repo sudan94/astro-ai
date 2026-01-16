@@ -7,7 +7,7 @@ from app.routes.astroRoutes import router as astro_router
 
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Astrology API",
