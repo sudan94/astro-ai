@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from app.config.database import Base
 from app.models.Person import Person
 from app.models.Astro import Astro
+from app.models.User import User
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
