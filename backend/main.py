@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config.database import engine, Base
 from app.routes.personRoutes import router as person_router
 from app.routes.locationRoutes import router as location_router
+from app.routes.astroRoutes import router as astro_router
 
 
 # Create tables
@@ -25,6 +26,7 @@ app.add_middleware(
 # Include routers
 app.include_router(person_router)
 app.include_router(location_router)
+app.include_router(astro_router)
 
 @app.get("/")
 def root():
