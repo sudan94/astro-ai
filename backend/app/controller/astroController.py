@@ -63,7 +63,7 @@ def get_chart_summary(chart_data: Dict) -> str:
         summary_parts.append(f"Nakshatra: {chart_data['nakshatra']}")
 
     if "ascendant" in chart_data:
-        summary_parts.append(f"Ascendant: {chart_data['ascendant']:.2f}")
+        summary_parts.append(f"Ascendant: {chart_data['ascendant']}")
 
     if "planets" in chart_data:
         summary_parts.append("\nPlanetary Positions:")
