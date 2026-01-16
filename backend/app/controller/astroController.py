@@ -29,12 +29,14 @@ def get_vedic_chart(db: Session, person_id: int) -> Dict:
         astro_entry = Astro(
             person_id=person_id,
             vedic_chart=str(chart_data),
-            ascendent_sign=chart_data.get("ascendant_sign")
+            ascendent_sign=chart_data.get("ascendant_sign"),
+            summary=get_chart_summary(chart_data)
         )
         db.add(astro_entry)
     else:
         astro_entry.vedic_chart = str(chart_data)
         astro_entry.ascendent_sign = chart_data.get("ascendant_sign")
+        astro_entry.summary = get_chart_summary(chart_data)
 
     db.commit()
     db.refresh(astro_entry)

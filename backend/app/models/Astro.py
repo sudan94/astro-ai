@@ -10,6 +10,7 @@ class Astro(Base):
     person_id = Column(Integer, nullable=False, index=True)
     ascendent_sign = Column(String(255), nullable=True)
     vedic_chart = Column(Text, nullable=True)  # Storing chart data as JSON string
+    summary = Column(Text, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
