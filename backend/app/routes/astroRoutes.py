@@ -1,10 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.config.database import get_db
-from app.controller.astroController import (
-    get_vedic_chart,
-    get_chart_summary
-)
+from app.controller import astroController
 
 
 router = APIRouter(prefix="/astro", tags=["astro"])
@@ -13,5 +10,5 @@ router = APIRouter(prefix="/astro", tags=["astro"])
 def get_vedic_chart_route(person_id: int, db: Session = Depends(get_db)):
     """Get Vedic astrology chart for a person by ID"""
 
-    chart_data = get_vedic_chart(db, person_id)
+    chart_data = astroController.get_vedic_chart(db, person_id)
     return chart_data

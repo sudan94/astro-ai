@@ -9,7 +9,6 @@ from app.config.database import engine, Base
 from app.routes.personRoutes import router as person_router
 from app.routes.locationRoutes import router as location_router
 from app.routes.astroRoutes import router as astro_router
-from app.routes.userRoutes import router as user_router
 from app.routes.authRoutes import router as auth_router
 
 
@@ -32,7 +31,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router)
-app.include_router(user_router)
 app.include_router(person_router)
 app.include_router(location_router)
 app.include_router(astro_router)
