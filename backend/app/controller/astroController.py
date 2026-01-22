@@ -7,7 +7,7 @@ from app.models.Astro import Astro
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 import json
-from app.utilities.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
+from app.utilities.prompts import SYSTEM_PROMPT
 
 
 async def get_vedic_chart(db: Session, person_id: int) -> Dict:
