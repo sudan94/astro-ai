@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text
 from sqlalchemy.sql import func
 from app.config.database import Base
+from sqlalchemy.dialects.postgresql import JSONB
 
 
 class Astro(Base):
@@ -9,8 +10,9 @@ class Astro(Base):
     id = Column(Integer, primary_key=True, index=True)
     person_id = Column(Integer, nullable=False, index=True)
     ascendent_sign = Column(String(255), nullable=True)
-    vedic_chart = Column(Text, nullable=True)  # Storing chart data as JSON string
+    vedic_chart = Column(JSONB, nullable=True)  # Storing chart data as JSON string
     summary = Column(Text, nullable=True)
+    ai_analysis = Column(JSONB, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

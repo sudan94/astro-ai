@@ -4,9 +4,13 @@ from app.models.Person import Person
 from typing import Dict, Optional
 from app.utilities.astro_calc import calculate_vedic_chart
 from app.models.Astro import Astro
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, HumanMessage
+import json
+from app.utilities.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
 
 
-def get_vedic_chart(db: Session, person_id: int) -> Dict:
+async def get_vedic_chart(db: Session, person_id: int) -> Dict:
     # Fetch person details from database
     person = db.query(Person).filter(Person.id == person_id).first()
 
@@ -25,19 +29,22 @@ def get_vedic_chart(db: Session, person_id: int) -> Dict:
 
     # Save the chart data to the database
     astro_entry = db.query(Astro).filter(Astro.person_id == person_id).first()
+    ai_analysis = await run_chart_analysis(chart_data)
+
     if not astro_entry:
         astro_entry = Astro(
             person_id=person_id,
             vedic_chart=str(chart_data),
             ascendent_sign=chart_data.get("ascendant_sign"),
-            summary=get_chart_summary(chart_data)
+            summary=get_chart_summary(chart_data),
+            ai_analysis=ai_analysis
         )
         db.add(astro_entry)
     else:
         astro_entry.vedic_chart = str(chart_data)
         astro_entry.ascendent_sign = chart_data.get("ascendant_sign")
         astro_entry.summary = get_chart_summary(chart_data)
-
+        astro_entry.ai_analysis = ai_analysis
     db.commit()
     db.refresh(astro_entry)
 
@@ -73,3 +80,49 @@ def get_chart_summary(chart_data: Dict) -> str:
             summary_parts.append(f"  {planet}: {longitude:.2f} ({sign})")
 
     return "\n".join(summary_parts)
+
+
+async def run_chart_analysis(chart_data: dict) -> dict:
+    llm = ChatOpenAI(
+    model="gpt-4.1-mini",
+    temperature=0
+    )
+
+    prompt = f"""
+{SYSTEM_PROMPT}
+
+Chart Data:
+{json.dumps(chart_data, indent=2)}
+
+Return ONLY valid JSON using this structure:
+{{
+  "summary": {{
+    "core_identity": "",
+    "life_focus": "",
+    "overall_tone": ""
+  }},
+  "personality": [],
+  "career": [],
+  "relationships": [],
+  "strengths": [],
+  "challenges": [],
+  "health_tendencies": [],
+  "spiritual_path": [],
+  "key_yogas": [],
+  "key_doshas": []
+}}
+"""
+    messages = [
+        SystemMessage(content=SYSTEM_PROMPT),
+        HumanMessage(
+            content=prompt
+        )
+    ]
+
+    response = await llm.ainvoke(messages)
+
+    try:
+        return json.loads(response.content)
+    except json.JSONDecodeError:
+        raise ValueError("LLM returned invalid JSON")
+
