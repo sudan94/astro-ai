@@ -9,9 +9,9 @@ router = APIRouter(prefix="/persons", tags=["persons"])
 
 
 @router.post("", response_model=personSchema.PersonResponse, status_code=status.HTTP_201_CREATED)
-def create_person_route(person: personSchema.PersonCreate, db: Session = Depends(get_db)):
+async def create_person_route(person: personSchema.PersonCreate, db: Session = Depends(get_db)):
     """Create a new person"""
-    return personController.create_person(db, person)
+    return await personController.create_person(db, person)
 
 @router.get("", response_model=list[personSchema.PersonResponse])
 def get_all_persons_route(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):

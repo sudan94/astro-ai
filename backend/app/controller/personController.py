@@ -1,10 +1,11 @@
+from app.controller import astroController
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from app.models.Person import Person
 from app.schemas import personSchema
 
-def create_person(db: Session, person: personSchema.PersonCreate):
+async def create_person(db: Session, person: personSchema.PersonCreate):
     """Create a new person"""
     try:
         db_person = Person(
@@ -17,6 +18,8 @@ def create_person(db: Session, person: personSchema.PersonCreate):
         db.add(db_person)
         db.commit()
         db.refresh(db_person)
+
+        await astroController.get_vedic_chart(db, person_id=db_person.id)
         return db_person
     except IntegrityError:
         db.rollback()

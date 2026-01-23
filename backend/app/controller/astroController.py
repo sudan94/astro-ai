@@ -85,7 +85,8 @@ def get_chart_summary(chart_data: Dict) -> str:
 async def run_chart_analysis(chart_data: dict) -> dict:
     llm = ChatOpenAI(
     model="gpt-4.1-mini",
-    temperature=0
+    temperature=0,
+    response_format={"type": "json_object"}
     )
 
     prompt = f"""
@@ -94,7 +95,11 @@ async def run_chart_analysis(chart_data: dict) -> dict:
 Chart Data:
 {json.dumps(chart_data, indent=2)}
 
-Return ONLY valid JSON using this structure:
+Return a COMPLETE and VALID JSON object.
+DO NOT include markdown.
+DO NOT truncate.
+DO NOT add comments.
+Ensure all fields are present.
 {{
   "summary": {{
     "core_identity": "",
