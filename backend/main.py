@@ -2,18 +2,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
-
-load_dotenv()
-
 from app.config.database import engine, Base
 from app.routes.personRoutes import router as person_router
 from app.routes.locationRoutes import router as location_router
 from app.routes.astroRoutes import router as astro_router
 from app.routes.authRoutes import router as auth_router
 
+load_dotenv()
 
 # Create tables
-# Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Astrology API",

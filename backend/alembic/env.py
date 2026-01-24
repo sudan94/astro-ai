@@ -7,6 +7,8 @@ from app.config.database import Base
 from app.models.Person import Person
 from app.models.Astro import Astro
 from app.models.User import User
+from app.models.Chat import Chat
+from app.models.ChatSession import ChatSession
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
