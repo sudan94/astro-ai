@@ -30,6 +30,17 @@ async def chat_session(db: Session, chat: chatShema.ChatSessionCreate):
         )
 
 
+async def get_sessions_for_person(db: Session, person_id: int) -> List[ChatSession]:
+    """List chat sessions for a person (newest first)."""
+    sessions = (
+        db.query(ChatSession)
+        .filter(ChatSession.person_id == person_id)
+        .order_by(ChatSession.created_at.desc())
+        .all()
+    )
+    return sessions
+
+
 async def get_chat_history(db: Session, session_id: int) -> List[Dict]:
     """Get chat history for a session"""
     chats = db.query(Chat).filter(Chat.session_id == session_id).order_by(Chat.created_at.asc()).all()

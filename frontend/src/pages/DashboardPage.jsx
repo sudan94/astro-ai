@@ -1,32 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { Navbar, Container, Row, Col, Card, Button, ListGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, ListGroup } from 'react-bootstrap';
 import { useAuth } from '../hooks/useAuth';
+import { AppNavbar } from '../components/AppNavbar';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
+  const { user } = useAuth();
 
   return (
     <>
-      <Navbar bg="primary" data-bs-theme="dark" sticky="top">
-        <Container>
-          <Navbar.Brand className="fw-bold fs-5">Vedic Astro</Navbar.Brand>
-          <div className="ms-auto">
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-          </div>
-        </Container>
-      </Navbar>
+      <AppNavbar />
 
       <div className="bg-light" style={{ minHeight: 'calc(100vh - 56px)', paddingTop: '30px', paddingBottom: '30px' }}>
         <Container>
@@ -76,6 +59,15 @@ export const DashboardPage = () => {
             <Card.Body>
               <h5 className="card-title mb-3">Quick Actions</h5>
               <ListGroup variant="flush">
+                <ListGroup.Item className="d-flex align-items-center justify-content-between">
+                  <div>
+                    <strong>→ Manage Persons</strong>
+                    <p className="text-secondary small mb-0">Add people and open person detail pages</p>
+                  </div>
+                  <Button variant="outline-primary" size="sm" onClick={() => navigate('/persons')}>
+                    Open
+                  </Button>
+                </ListGroup.Item>
                 <ListGroup.Item>
                   <strong>→ View Birth Chart</strong>
                   <p className="text-secondary small mb-0">Analyze your astrological chart</p>

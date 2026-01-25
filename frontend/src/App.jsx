@@ -5,6 +5,8 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { PersonsPage } from './pages/PersonsPage';
+import { PersonDetailPage } from './pages/PersonDetailPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { GOOGLE_CLIENT_ID } from './config/constants';
 
@@ -20,6 +22,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/persons"
+              element={
+                <ProtectedRoute>
+                  <PersonsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/persons/:id"
+              element={
+                <ProtectedRoute>
+                  <PersonDetailPage />
                 </ProtectedRoute>
               }
             />
