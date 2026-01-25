@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
   Alert,
   Badge,
@@ -11,13 +11,13 @@ import {
   ListGroup,
   Row,
   Spinner,
-} from 'react-bootstrap';
-import { AppNavbar } from '../components/AppNavbar';
-import { personService } from '../services/personService';
-import { chatService } from '../services/chatService';
+} from "react-bootstrap";
+import { AppNavbar } from "../components/AppNavbar";
+import { personService } from "../services/personService";
+import { chatService } from "../services/chatService";
 
 function formatDateTime(value) {
-  if (!value) return '—';
+  if (!value) return "—";
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return String(value);
   return d.toLocaleString();
@@ -28,7 +28,7 @@ export const PersonDetailPage = () => {
   const personId = Number(id);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [person, setPerson] = useState(null);
 
   const [sessionsLoading, setSessionsLoading] = useState(false);
@@ -38,24 +38,26 @@ export const PersonDetailPage = () => {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messages, setMessages] = useState([]); // { role, content }
 
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
 
   const bottomRef = useRef(null);
 
   const activeSession = useMemo(
     () => sessions.find((s) => s.id === activeSessionId) || null,
-    [sessions, activeSessionId]
+    [sessions, activeSessionId],
   );
 
   const loadPerson = async () => {
-    setError('');
+    setError("");
     setLoading(true);
     try {
       const data = await personService.getById(personId);
       setPerson(data);
     } catch (e) {
-      setError(e?.response?.data?.detail || e?.message || 'Failed to load person');
+      setError(
+        e?.response?.data?.detail || e?.message || "Failed to load person",
+      );
     } finally {
       setLoading(false);
     }
@@ -79,7 +81,11 @@ export const PersonDetailPage = () => {
         setActiveSessionId(created.id);
       }
     } catch (e) {
-      setError(e?.response?.data?.detail || e?.message || 'Failed to load chat sessions');
+      setError(
+        e?.response?.data?.detail ||
+          e?.message ||
+          "Failed to load chat sessions",
+      );
     } finally {
       setSessionsLoading(false);
     }
@@ -92,7 +98,11 @@ export const PersonDetailPage = () => {
       const data = await chatService.getHistory(sessionId);
       setMessages(data?.messages || []);
     } catch (e) {
-      setError(e?.response?.data?.detail || e?.message || 'Failed to load chat history');
+      setError(
+        e?.response?.data?.detail ||
+          e?.message ||
+          "Failed to load chat history",
+      );
     } finally {
       setMessagesLoading(false);
     }
@@ -118,18 +128,20 @@ export const PersonDetailPage = () => {
 
   useEffect(() => {
     if (!bottomRef.current) return;
-    bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages, messagesLoading, sending]);
 
   const onNewSession = async () => {
-    setError('');
+    setError("");
     try {
       const created = await chatService.createSession(personId);
       setSessions((prev) => [created, ...(prev || [])]);
       setActiveSessionId(created.id);
       setMessages([]);
     } catch (e) {
-      setError(e?.response?.data?.detail || e?.message || 'Failed to create session');
+      setError(
+        e?.response?.data?.detail || e?.message || "Failed to create session",
+      );
     }
   };
 
@@ -139,22 +151,27 @@ export const PersonDetailPage = () => {
     const text = input.trim();
     if (!text) return;
 
-    setError('');
+    setError("");
     setSending(true);
-    setInput('');
+    setInput("");
 
     // Optimistic append
-    setMessages((prev) => [...(prev || []), { role: 'user', content: text }]);
+    setMessages((prev) => [...(prev || []), { role: "user", content: text }]);
     try {
-      const res = await chatService.sendMessage({ sessionId: activeSessionId, message: text });
+      const res = await chatService.sendMessage({
+        sessionId: activeSessionId,
+        message: text,
+      });
       setMessages((prev) => [
         ...(prev || []),
-        { role: 'assistant', content: res?.assistant_response || '' },
+        { role: "assistant", content: res?.assistant_response || "" },
       ]);
       // Refresh sessions so updated_at order stays accurate
       loadSessions({ autoCreateIfEmpty: false });
     } catch (e2) {
-      setError(e2?.response?.data?.detail || e2?.message || 'Failed to send message');
+      setError(
+        e2?.response?.data?.detail || e2?.message || "Failed to send message",
+      );
     } finally {
       setSending(false);
     }
@@ -163,7 +180,14 @@ export const PersonDetailPage = () => {
   return (
     <>
       <AppNavbar />
-      <div className="bg-light" style={{ minHeight: 'calc(100vh - 56px)', paddingTop: '30px', paddingBottom: '30px' }}>
+      <div
+        className="bg-light"
+        style={{
+          minHeight: "calc(100vh - 56px)",
+          paddingTop: "30px",
+          paddingBottom: "30px",
+        }}
+      >
         <Container>
           {error ? <Alert variant="danger">{error}</Alert> : null}
 
@@ -176,59 +200,62 @@ export const PersonDetailPage = () => {
             <Alert variant="warning">Person not found.</Alert>
           ) : (
             <Row className="g-4">
-              <Col lg={4}>
+              <Col lg={12}>
                 <Card className="shadow-sm">
                   <Card.Body>
                     <div className="d-flex align-items-center justify-content-between mb-2">
                       <h4 className="mb-0">Person</h4>
                       <Badge bg="secondary">#{person.id}</Badge>
                     </div>
-
-                    <div className="mb-3">
-                      <div className="fw-semibold fs-5">{person.name}</div>
-                      <div className="text-muted">{person.place_of_birth || '—'}</div>
-                    </div>
-
-                    <ListGroup variant="flush">
-                      <ListGroup.Item>
+                    <Row className="mb-3">
+                      <Col lg={3} className="mb-3">
+                        <div className="fw-semibold fs-5">{person.name}</div>
+                        <div className="text-muted">
+                          {person.place_of_birth || "—"}
+                        </div>
+                      </Col>
+                      <Col lg={3} className="mb-3">
                         <div className="text-muted small">Date of birth</div>
-                        <div className="fw-semibold">{formatDateTime(person.date_of_birth)}</div>
-                      </ListGroup.Item>
-                      <ListGroup.Item>
-                        <div className="text-muted small">Latitude / Longitude</div>
+                        <div className="fw-semibold">
+                          {formatDateTime(person.date_of_birth)}
+                        </div>
+                      </Col>
+                      <Col lg={3} className="mb-3">
+                        <div className="text-muted small">
+                          Latitude / Longitude
+                        </div>
                         <div className="fw-semibold">
                           {person.latitude}, {person.longitude}
                         </div>
-                      </ListGroup.Item>
-                      <ListGroup.Item>
+                      </Col>
+                      <Col lg={3} className="mb-3">
                         <div className="text-muted small">Created</div>
-                        <div className="fw-semibold">{formatDateTime(person.created_at)}</div>
-                      </ListGroup.Item>
-                    </ListGroup>
-
-                    <div className="mt-3 d-flex gap-2">
-                      <Button as={Link} to="/persons" variant="outline-secondary" size="sm">
-                        Back
-                      </Button>
-                      <Button variant="outline-primary" size="sm" onClick={loadPerson}>
-                        Refresh
-                      </Button>
-                    </div>
+                        <div className="fw-semibold">
+                          {formatDateTime(person.created_at)}
+                        </div>
+                      </Col>
+                    </Row>
                   </Card.Body>
                 </Card>
               </Col>
 
-              <Col lg={8}>
+              <Col lg={12}>
                 <Card className="shadow-sm">
                   <Card.Body>
                     <div className="d-flex align-items-center justify-content-between mb-3">
                       <div>
                         <h4 className="mb-0">AI Chat</h4>
                         <div className="text-muted small">
-                          Multiple sessions per person. AI uses the generated Vedic chart context.
+                          Multiple sessions per person. AI uses the generated
+                          Vedic chart context.
                         </div>
                       </div>
-                      <Button variant="primary" size="sm" onClick={onNewSession} disabled={sessionsLoading}>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={onNewSession}
+                        disabled={sessionsLoading}
+                      >
                         + New session
                       </Button>
                     </div>
@@ -242,7 +269,7 @@ export const PersonDetailPage = () => {
                               {sessionsLoading ? <Spinner size="sm" /> : null}
                             </div>
 
-                            <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+                            <div style={{ maxHeight: 320, overflowY: "auto" }}>
                               <ListGroup>
                                 {sessions.length === 0 ? (
                                   <ListGroup.Item className="text-muted">
@@ -258,8 +285,12 @@ export const PersonDetailPage = () => {
                                     >
                                       <div className="d-flex align-items-center justify-content-between">
                                         <div>
-                                          <div className="fw-semibold">Session #{s.id}</div>
-                                          <div className="small opacity-75">{formatDateTime(s.created_at)}</div>
+                                          <div className="fw-semibold">
+                                            Session #{s.id}
+                                          </div>
+                                          <div className="small opacity-75">
+                                            {formatDateTime(s.created_at)}
+                                          </div>
                                         </div>
                                       </div>
                                     </ListGroup.Item>
@@ -273,36 +304,52 @@ export const PersonDetailPage = () => {
 
                       <Col md={8}>
                         <Card className="border">
-                          <Card.Body className="d-flex flex-column" style={{ height: 420 }}>
+                          <Card.Body
+                            className="d-flex flex-column"
+                            style={{ height: 420 }}
+                          >
                             <div className="d-flex align-items-center justify-content-between mb-2">
                               <div className="fw-semibold">
-                                {activeSession ? `Session #${activeSession.id}` : 'No session selected'}
+                                {activeSession
+                                  ? `Session #${activeSession.id}`
+                                  : "No session selected"}
                               </div>
                               {messagesLoading ? <Spinner size="sm" /> : null}
                             </div>
 
                             <div
                               className="bg-light border rounded p-3 mb-3"
-                              style={{ flex: 1, overflowY: 'auto' }}
+                              style={{ flex: 1, overflowY: "auto" }}
                             >
                               {messagesLoading && messages.length === 0 ? (
-                                <div className="text-muted">Loading messages…</div>
+                                <div className="text-muted">
+                                  Loading messages…
+                                </div>
                               ) : messages.length === 0 ? (
                                 <div className="text-muted">
-                                  Ask anything about this person’s chart and life path.
+                                  Ask anything about this person’s chart and
+                                  life path.
                                 </div>
                               ) : (
                                 messages.map((m, idx) => (
-                                  <div key={`${idx}-${m.role}`} className="mb-2">
+                                  <div
+                                    key={`${idx}-${m.role}`}
+                                    className="mb-2"
+                                  >
                                     <div className="small text-muted">
-                                      {m.role === 'assistant' ? 'Assistant' : 'You'}
+                                      {m.role === "assistant"
+                                        ? "Assistant"
+                                        : "You"}
                                     </div>
                                     <div
                                       className="p-2 rounded"
                                       style={{
-                                        background: m.role === 'assistant' ? '#ffffff' : '#e7f1ff',
-                                        border: '1px solid #dee2e6',
-                                        whiteSpace: 'pre-wrap',
+                                        background:
+                                          m.role === "assistant"
+                                            ? "#ffffff"
+                                            : "#e7f1ff",
+                                        border: "1px solid #dee2e6",
+                                        whiteSpace: "pre-wrap",
                                       }}
                                     >
                                       {m.content}
@@ -320,8 +367,12 @@ export const PersonDetailPage = () => {
                                 placeholder="Type your message…"
                                 disabled={!activeSessionId || sending}
                               />
-                              <Button type="submit" variant="primary" disabled={!activeSessionId || sending}>
-                                {sending ? 'Sending…' : 'Send'}
+                              <Button
+                                type="submit"
+                                variant="primary"
+                                disabled={!activeSessionId || sending}
+                              >
+                                {sending ? "Sending…" : "Send"}
                               </Button>
                             </Form>
                           </Card.Body>
@@ -338,4 +389,3 @@ export const PersonDetailPage = () => {
     </>
   );
 };
-

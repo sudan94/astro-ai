@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 import os
+import jwt
 from jwt import encode as jwt_encode
 from datetime import datetime, timedelta
 from google.oauth2 import id_token
@@ -44,10 +45,19 @@ def create_or_update_user(db: Session, google_id: str, email: str, name: str = N
 
 def get_current_user(token: str, db: Session):
     try:
-        payload = jwt.decode(token, os.getenv("SECRET_KEY", "your-secret-key"), algorithms=["HS256"])
+        payload = jwt.decode(
+            token,
+            os.getenv("SECRET_KEY", "your-secret-key"),
+            algorithms=["HS256"],
+        )
         google_id = payload.get("sub")
         if not google_id:
             return None
-        return db.query(User).filter(User.google_id == google_id).first()
-    except:
+        user = db.query(User).filter(User.google_id == google_id).first()
+        if not user or not user.is_active:
+            return None
+        return user
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
         return None
