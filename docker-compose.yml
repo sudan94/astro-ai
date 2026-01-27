@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: vedic-astro-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vedic-astro-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Database connection for SQLAlchemy
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_SERVER: ${POSTGRES_SERVER:-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB}
+      # Ensure Python can find the app module
+      PYTHONPATH: /app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: >
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vedic-astro-frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Frontend talks to backend through host-mapped port
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    command: >
+      npm run dev -- --host 0.0.0.0 --port 5173
+
+volumes:
+  db_data:
+
