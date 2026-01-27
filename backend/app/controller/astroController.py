@@ -34,21 +34,48 @@ async def get_vedic_chart(db: Session, person_id: int) -> Dict:
     if not astro_entry:
         astro_entry = Astro(
             person_id=person_id,
-            vedic_chart=str(chart_data),
-            ascendent_sign=chart_data.get("ascendant_sign"),
+            vedic_chart=chart_data,
+            ascendent_sign=(chart_data.get("ascendant") or {}).get("sign") or chart_data.get("ascendant_sign"),
             summary=get_chart_summary(chart_data),
             ai_analysis=ai_analysis
         )
         db.add(astro_entry)
     else:
-        astro_entry.vedic_chart = str(chart_data)
-        astro_entry.ascendent_sign = chart_data.get("ascendant_sign")
+        astro_entry.vedic_chart = chart_data
+        astro_entry.ascendent_sign = (chart_data.get("ascendant") or {}).get("sign") or chart_data.get("ascendant_sign")
         astro_entry.summary = get_chart_summary(chart_data)
         astro_entry.ai_analysis = ai_analysis
     db.commit()
     db.refresh(astro_entry)
 
     return chart_data
+
+
+async def get_saved_astro(db: Session, person_id: int, generate_if_missing: bool = True) -> Astro:
+    """
+    Return saved astro row for a person. Optionally generate if missing.
+    """
+    person = db.query(Person).filter(Person.id == person_id).first()
+    if not person:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Person not found"
+        )
+
+    astro_entry = db.query(Astro).filter(Astro.person_id == person_id).first()
+    if astro_entry:
+        return astro_entry
+
+    if generate_if_missing:
+        await get_vedic_chart(db, person_id)
+        astro_entry = db.query(Astro).filter(Astro.person_id == person_id).first()
+        if astro_entry:
+            return astro_entry
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Astrological data not found for this person"
+    )
 
 
 def get_chart_summary(chart_data: Dict) -> str:

@@ -173,7 +173,7 @@ async def generate_chat_response(
     """Generate AI response using LLM with astrological context"""
 
     llm = ChatOpenAI(
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         temperature=0.7,
     )
 

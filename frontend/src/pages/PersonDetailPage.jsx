@@ -1,20 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
+  Accordion,
   Alert,
   Badge,
   Button,
   Card,
   Col,
   Container,
-  Form,
-  ListGroup,
   Row,
   Spinner,
 } from "react-bootstrap";
 import { AppNavbar } from "../components/AppNavbar";
 import { personService } from "../services/personService";
-import { chatService } from "../services/chatService";
+import { astroService } from "../services/astroService";
 
 function formatDateTime(value) {
   if (!value) return "—";
@@ -31,22 +30,26 @@ export const PersonDetailPage = () => {
   const [error, setError] = useState("");
   const [person, setPerson] = useState(null);
 
-  const [sessionsLoading, setSessionsLoading] = useState(false);
-  const [sessions, setSessions] = useState([]);
-  const [activeSessionId, setActiveSessionId] = useState(null);
+  const [astroLoading, setAstroLoading] = useState(true);
+  const [astro, setAstro] = useState(null);
 
-  const [messagesLoading, setMessagesLoading] = useState(false);
-  const [messages, setMessages] = useState([]); // { role, content }
+  const safeJsonParse = (value) => {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  };
 
-  const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
-
-  const bottomRef = useRef(null);
-
-  const activeSession = useMemo(
-    () => sessions.find((s) => s.id === activeSessionId) || null,
-    [sessions, activeSessionId],
-  );
+  const normalizeMaybeJson = (value) => {
+    if (!value) return null;
+    if (typeof value === "object") return value;
+    if (typeof value === "string") {
+      const parsed = safeJsonParse(value);
+      return parsed ?? value;
+    }
+    return value;
+  };
 
   const loadPerson = async () => {
     setError("");
@@ -63,117 +66,40 @@ export const PersonDetailPage = () => {
     }
   };
 
-  const loadSessions = async ({ autoCreateIfEmpty = false } = {}) => {
-    setSessionsLoading(true);
+  const loadAstro = async () => {
+    setAstroLoading(true);
     try {
-      const data = await chatService.listSessionsForPerson(personId);
-      const list = data || [];
-      setSessions(list);
-
-      if (list.length > 0) {
-        setActiveSessionId((prev) => prev ?? list[0].id);
-        return;
-      }
-
-      if (autoCreateIfEmpty) {
-        const created = await chatService.createSession(personId);
-        setSessions([created]);
-        setActiveSessionId(created.id);
-      }
+      const data = await astroService.getSavedForPerson(personId);
+      setAstro(data);
     } catch (e) {
+      setAstro(null);
       setError(
-        e?.response?.data?.detail ||
-          e?.message ||
-          "Failed to load chat sessions",
+        e?.response?.data?.detail || e?.message || "Failed to load chart",
       );
     } finally {
-      setSessionsLoading(false);
-    }
-  };
-
-  const loadHistory = async (sessionId) => {
-    if (!sessionId) return;
-    setMessagesLoading(true);
-    try {
-      const data = await chatService.getHistory(sessionId);
-      setMessages(data?.messages || []);
-    } catch (e) {
-      setError(
-        e?.response?.data?.detail ||
-          e?.message ||
-          "Failed to load chat history",
-      );
-    } finally {
-      setMessagesLoading(false);
+      setAstroLoading(false);
     }
   };
 
   useEffect(() => {
     if (!Number.isFinite(personId)) return;
     loadPerson();
+    loadAstro();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [personId]);
 
-  useEffect(() => {
-    if (!Number.isFinite(personId)) return;
-    loadSessions({ autoCreateIfEmpty: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [personId]);
-
-  useEffect(() => {
-    if (!activeSessionId) return;
-    loadHistory(activeSessionId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSessionId]);
-
-  useEffect(() => {
-    if (!bottomRef.current) return;
-    bottomRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [messages, messagesLoading, sending]);
-
-  const onNewSession = async () => {
+  const onRegenerateChart = async () => {
     setError("");
+    setAstroLoading(true);
     try {
-      const created = await chatService.createSession(personId);
-      setSessions((prev) => [created, ...(prev || [])]);
-      setActiveSessionId(created.id);
-      setMessages([]);
+      await astroService.generateVedicChart(personId);
+      await loadAstro();
     } catch (e) {
       setError(
-        e?.response?.data?.detail || e?.message || "Failed to create session",
-      );
-    }
-  };
-
-  const onSend = async (e) => {
-    e.preventDefault();
-    if (!activeSessionId) return;
-    const text = input.trim();
-    if (!text) return;
-
-    setError("");
-    setSending(true);
-    setInput("");
-
-    // Optimistic append
-    setMessages((prev) => [...(prev || []), { role: "user", content: text }]);
-    try {
-      const res = await chatService.sendMessage({
-        sessionId: activeSessionId,
-        message: text,
-      });
-      setMessages((prev) => [
-        ...(prev || []),
-        { role: "assistant", content: res?.assistant_response || "" },
-      ]);
-      // Refresh sessions so updated_at order stays accurate
-      loadSessions({ autoCreateIfEmpty: false });
-    } catch (e2) {
-      setError(
-        e2?.response?.data?.detail || e2?.message || "Failed to send message",
+        e?.response?.data?.detail || e?.message || "Failed to generate chart",
       );
     } finally {
-      setSending(false);
+      setAstroLoading(false);
     }
   };
 
@@ -235,6 +161,34 @@ export const PersonDetailPage = () => {
                         </div>
                       </Col>
                     </Row>
+
+                    <div className="d-flex flex-wrap gap-2">
+                      <Button
+                        as={Link}
+                        to="/persons"
+                        variant="outline-secondary"
+                        size="sm"
+                      >
+                        Back
+                      </Button>
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={loadPerson}
+                      >
+                        Refresh
+                      </Button>
+                      <Button
+                        as={Link}
+                        to={`/persons/${personId}/chat`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="primary"
+                        size="sm"
+                      >
+                        Open Chat (full screen)
+                      </Button>
+                    </div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -242,143 +196,252 @@ export const PersonDetailPage = () => {
               <Col lg={12}>
                 <Card className="shadow-sm">
                   <Card.Body>
-                    <div className="d-flex align-items-center justify-content-between mb-3">
+                    <div className="d-flex align-items-center justify-content-between mb-2">
                       <div>
-                        <h4 className="mb-0">AI Chat</h4>
+                        <h4 className="mb-0">Chart & AI Analysis</h4>
                         <div className="text-muted small">
-                          Multiple sessions per person. AI uses the generated
-                          Vedic chart context.
+                          Loaded from the saved `astro` table (summary, AI
+                          analysis, full chart JSON).
                         </div>
                       </div>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={onNewSession}
-                        disabled={sessionsLoading}
-                      >
-                        + New session
-                      </Button>
+                      <div className="d-flex gap-2">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={loadAstro}
+                          disabled={astroLoading}
+                        >
+                          Refresh
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={onRegenerateChart}
+                          disabled={astroLoading}
+                        >
+                          Re-generate
+                        </Button>
+                      </div>
                     </div>
 
-                    <Row className="g-3">
-                      <Col md={4}>
-                        <Card className="border">
-                          <Card.Body>
-                            <div className="d-flex align-items-center justify-content-between mb-2">
-                              <div className="fw-semibold">Sessions</div>
-                              {sessionsLoading ? <Spinner size="sm" /> : null}
-                            </div>
+                    {astroLoading ? (
+                      <div className="d-flex align-items-center gap-2 text-muted">
+                        <Spinner size="sm" /> Loading chart…
+                      </div>
+                    ) : !astro ? (
+                      <Alert variant="warning" className="mb-0">
+                        No saved astro data found yet.
+                      </Alert>
+                    ) : (
+                      <>
+                        <Row className="g-3 mb-3">
+                          <Col md={4}>
+                            <Card className="border">
+                              <Card.Body>
+                                <div className="text-muted small">
+                                  Ascendant sign
+                                </div>
+                                <div className="fw-semibold fs-5">
+                                  {astro.ascendent_sign || "—"}
+                                </div>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                          <Col md={8}>
+                            <Card className="border">
+                              <Card.Body>
+                                <div className="text-muted small mb-1">
+                                  Summary
+                                </div>
+                                <pre
+                                  className="mb-0"
+                                  style={{ whiteSpace: "pre-wrap" }}
+                                >
+                                  {astro.summary || "—"}
+                                </pre>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        </Row>
 
-                            <div style={{ maxHeight: 320, overflowY: "auto" }}>
-                              <ListGroup>
-                                {sessions.length === 0 ? (
-                                  <ListGroup.Item className="text-muted">
-                                    No sessions yet.
-                                  </ListGroup.Item>
-                                ) : (
-                                  sessions.map((s) => (
-                                    <ListGroup.Item
-                                      action
-                                      key={s.id}
-                                      active={s.id === activeSessionId}
-                                      onClick={() => setActiveSessionId(s.id)}
+                        <Accordion alwaysOpen>
+                          <Accordion.Item eventKey="analysis">
+                            <Accordion.Header>
+                              AI Analysis (saved)
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              {(() => {
+                                const analysis = normalizeMaybeJson(
+                                  astro.ai_analysis,
+                                );
+                                if (!analysis)
+                                  return <div className="text-muted">—</div>;
+                                if (typeof analysis === "string") {
+                                  return (
+                                    <pre
+                                      className="mb-0"
+                                      style={{ whiteSpace: "pre-wrap" }}
                                     >
-                                      <div className="d-flex align-items-center justify-content-between">
-                                        <div>
-                                          <div className="fw-semibold">
-                                            Session #{s.id}
-                                          </div>
-                                          <div className="small opacity-75">
-                                            {formatDateTime(s.created_at)}
-                                          </div>
+                                      {analysis}
+                                    </pre>
+                                  );
+                                }
+
+                                const summary = analysis?.summary;
+                                const renderList = (title, items) => (
+                                  <div className="mb-3">
+                                    <div className="fw-semibold mb-1">
+                                      {title}
+                                    </div>
+                                    {(items || []).length === 0 ? (
+                                      <div className="text-muted">—</div>
+                                    ) : (
+                                      <ul className="mb-0">
+                                        {items.map((it, idx) => (
+                                          <li key={`${title}-${idx}`}>
+                                            {String(it)}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                  </div>
+                                );
+                                const renderObjectList = (title, items) => (
+                                  <div className="mb-3">
+                                    <div className="fw-semibold mb-1">
+                                      {title}
+                                    </div>
+
+                                    {(items || []).length === 0 ? (
+                                      <div className="text-muted">—</div>
+                                    ) : (
+                                      <ul className="mb-0">
+                                        {items.map((it, idx) => (
+                                          <li
+                                            key={`${title}-${idx}`}
+                                            className="mb-2"
+                                          >
+                                            <div className="fw-semibold">
+                                              {it.name || "—"}
+                                            </div>
+
+                                            {it.description && (
+                                              <div className="text-muted small">
+                                                {it.description}
+                                              </div>
+                                            )}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                  </div>
+                                );
+
+                                return (
+                                  <>
+                                    {summary ? (
+                                      <div className="mb-3">
+                                        <div className="fw-semibold mb-1">
+                                          Summary
+                                        </div>
+                                        <div className="text-muted small">
+                                          Core identity
+                                        </div>
+                                        <div className="mb-2">
+                                          {summary.core_identity || "—"}
+                                        </div>
+                                        <div className="text-muted small">
+                                          Life focus
+                                        </div>
+                                        <div className="mb-2">
+                                          {summary.life_focus || "—"}
+                                        </div>
+                                        <div className="text-muted small">
+                                          Overall tone
+                                        </div>
+                                        <div className="mb-0">
+                                          {summary.overall_tone || "—"}
                                         </div>
                                       </div>
-                                    </ListGroup.Item>
-                                  ))
-                                )}
-                              </ListGroup>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
+                                    ) : null}
 
-                      <Col md={8}>
-                        <Card className="border">
-                          <Card.Body
-                            className="d-flex flex-column"
-                            style={{ height: 420 }}
-                          >
-                            <div className="d-flex align-items-center justify-content-between mb-2">
-                              <div className="fw-semibold">
-                                {activeSession
-                                  ? `Session #${activeSession.id}`
-                                  : "No session selected"}
-                              </div>
-                              {messagesLoading ? <Spinner size="sm" /> : null}
-                            </div>
+                                    {renderList(
+                                      "Personality",
+                                      analysis.personality,
+                                    )}
+                                    {renderList("Career", analysis.career)}
+                                    {renderList(
+                                      "Relationships",
+                                      analysis.relationships,
+                                    )}
+                                    {renderList(
+                                      "Strengths",
+                                      analysis.strengths,
+                                    )}
+                                    {renderList(
+                                      "Challenges",
+                                      analysis.challenges,
+                                    )}
+                                    {renderList(
+                                      "Health tendencies",
+                                      analysis.health_tendencies,
+                                    )}
+                                    {renderList(
+                                      "Spiritual path",
+                                      analysis.spiritual_path,
+                                    )}
+                                    {renderObjectList(
+                                      "Key yogas",
+                                      analysis.key_yogas,
+                                    )}
+                                    {renderObjectList(
+                                      "Key doshas",
+                                      analysis.key_doshas,
+                                    )}
+                                  </>
+                                );
+                              })()}
+                            </Accordion.Body>
+                          </Accordion.Item>
 
-                            <div
-                              className="bg-light border rounded p-3 mb-3"
-                              style={{ flex: 1, overflowY: "auto" }}
-                            >
-                              {messagesLoading && messages.length === 0 ? (
-                                <div className="text-muted">
-                                  Loading messages…
-                                </div>
-                              ) : messages.length === 0 ? (
-                                <div className="text-muted">
-                                  Ask anything about this person’s chart and
-                                  life path.
-                                </div>
-                              ) : (
-                                messages.map((m, idx) => (
-                                  <div
-                                    key={`${idx}-${m.role}`}
-                                    className="mb-2"
-                                  >
-                                    <div className="small text-muted">
-                                      {m.role === "assistant"
-                                        ? "Assistant"
-                                        : "You"}
-                                    </div>
-                                    <div
-                                      className="p-2 rounded"
-                                      style={{
-                                        background:
-                                          m.role === "assistant"
-                                            ? "#ffffff"
-                                            : "#e7f1ff",
-                                        border: "1px solid #dee2e6",
-                                        whiteSpace: "pre-wrap",
-                                      }}
+                          <Accordion.Item eventKey="chart">
+                            <Accordion.Header>
+                              Full Vedic Chart (saved)
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              {(() => {
+                                const chart = normalizeMaybeJson(
+                                  astro.vedic_chart,
+                                );
+                                if (!chart)
+                                  return <div className="text-muted">—</div>;
+                                if (typeof chart === "string") {
+                                  return (
+                                    <pre
+                                      className="mb-0"
+                                      style={{ whiteSpace: "pre-wrap" }}
                                     >
-                                      {m.content}
-                                    </div>
-                                  </div>
-                                ))
-                              )}
-                              <div ref={bottomRef} />
-                            </div>
-
-                            <Form onSubmit={onSend} className="d-flex gap-2">
-                              <Form.Control
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder="Type your message…"
-                                disabled={!activeSessionId || sending}
-                              />
-                              <Button
-                                type="submit"
-                                variant="primary"
-                                disabled={!activeSessionId || sending}
-                              >
-                                {sending ? "Sending…" : "Send"}
-                              </Button>
-                            </Form>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    </Row>
+                                      {chart}
+                                    </pre>
+                                  );
+                                }
+                                return (
+                                  <pre
+                                    className="mb-0"
+                                    style={{
+                                      whiteSpace: "pre-wrap",
+                                      overflowX: "auto",
+                                    }}
+                                  >
+                                    {JSON.stringify(chart, null, 2)}
+                                  </pre>
+                                );
+                              })()}
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        </Accordion>
+                      </>
+                    )}
                   </Card.Body>
                 </Card>
               </Col>

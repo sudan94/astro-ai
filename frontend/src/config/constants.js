@@ -25,4 +25,8 @@ export const API_ENDPOINTS = {
     HISTORY: (sessionId) => `/chat/session/${sessionId}/history`,
     SEND_MESSAGE: '/chat/message',
   },
+  ASTRO: {
+    GET_SAVED: (personId) => `/astro/person/${personId}`,
+    GENERATE_VEDIC_CHART: (personId) => `/astro/vedic-chart/${personId}`,
+  },
 };

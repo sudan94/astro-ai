@@ -7,6 +7,7 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { PersonsPage } from './pages/PersonsPage';
 import { PersonDetailPage } from './pages/PersonDetailPage';
+import { PersonChatPage } from './pages/PersonChatPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { GOOGLE_CLIENT_ID } from './config/constants';
 
@@ -38,6 +39,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <PersonDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/persons/:id/chat"
+              element={
+                <ProtectedRoute>
+                  <PersonChatPage />
                 </ProtectedRoute>
               }
             />
