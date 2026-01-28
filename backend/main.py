@@ -15,6 +15,7 @@ load_dotenv()
 Base.metadata.create_all(bind=engine)
 
 ENV = os.getenv("ENV", "development")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 app = FastAPI(
     title="Astrology API",
@@ -26,7 +27,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[FRONTEND_URL],
     allow_methods=["*"],
     allow_headers=["*"],
 )
