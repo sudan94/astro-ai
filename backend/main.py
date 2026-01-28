@@ -15,7 +15,10 @@ load_dotenv()
 Base.metadata.create_all(bind=engine)
 
 ENV = os.getenv("ENV", "development")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+origins = [
+    "https://astro-ai-iota.vercel.app",  # <-- your frontend URL
+    "http://localhost:5173",             # <-- local dev
+]
 
 app = FastAPI(
     title="Astrology API",
@@ -27,7 +30,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
+    allow_origins=origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
