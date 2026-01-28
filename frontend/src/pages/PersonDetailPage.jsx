@@ -14,6 +14,7 @@ import {
 import { AppNavbar } from "../components/AppNavbar";
 import { personService } from "../services/personService";
 import { astroService } from "../services/astroService";
+import VedicChartView from "../components/VedicChart";
 
 function formatDateTime(value) {
   if (!value) return "—";
@@ -102,6 +103,8 @@ export const PersonDetailPage = () => {
       setAstroLoading(false);
     }
   };
+
+  const chart_details = normalizeMaybeJson(astro?.vedic_chart);
 
   return (
     <>
@@ -199,10 +202,6 @@ export const PersonDetailPage = () => {
                     <div className="d-flex align-items-center justify-content-between mb-2">
                       <div>
                         <h4 className="mb-0">Chart & AI Analysis</h4>
-                        <div className="text-muted small">
-                          Loaded from the saved `astro` table (summary, AI
-                          analysis, full chart JSON).
-                        </div>
                       </div>
                       <div className="d-flex gap-2">
                         <Button
@@ -234,41 +233,23 @@ export const PersonDetailPage = () => {
                       </Alert>
                     ) : (
                       <>
-                        <Row className="g-3 mb-3">
-                          <Col md={4}>
-                            <Card className="border">
-                              <Card.Body>
-                                <div className="text-muted small">
-                                  Ascendant sign
-                                </div>
-                                <div className="fw-semibold fs-5">
-                                  {astro.ascendent_sign || "—"}
-                                </div>
-                              </Card.Body>
-                            </Card>
-                          </Col>
-                          <Col md={8}>
-                            <Card className="border">
-                              <Card.Body>
-                                <div className="text-muted small mb-1">
-                                  Summary
-                                </div>
-                                <pre
-                                  className="mb-0"
-                                  style={{ whiteSpace: "pre-wrap" }}
-                                >
-                                  {astro.summary || "—"}
-                                </pre>
-                              </Card.Body>
-                            </Card>
-                          </Col>
-                        </Row>
+      {/* Ascendant */}
+                        <Card className="mb-3">
+                          <Card.Body>
+                            <Card.Title>Ascendant</Card.Title>
+                            <h6 className="mb-1 text-muted">
+                              {chart_details.ascendant_sign}
+                            </h6>
+                            <small className="text-muted">
+                              Longitude:{" "}
+                              {chart_details.ascendant.longitude.toFixed(2)}°
+                            </small>
+                          </Card.Body>
+                        </Card>
 
-                        <Accordion alwaysOpen>
+                        <Accordion alwaysOpen defaultActiveKey={['analysis']}>
                           <Accordion.Item eventKey="analysis">
-                            <Accordion.Header>
-                              AI Analysis (saved)
-                            </Accordion.Header>
+                            <Accordion.Header>AI Analysis</Accordion.Header>
                             <Accordion.Body>
                               {(() => {
                                 const analysis = normalizeMaybeJson(
@@ -406,7 +387,7 @@ export const PersonDetailPage = () => {
 
                           <Accordion.Item eventKey="chart">
                             <Accordion.Header>
-                              Full Vedic Chart (saved)
+                              Full Vedic Chart
                             </Accordion.Header>
                             <Accordion.Body>
                               {(() => {
@@ -415,6 +396,7 @@ export const PersonDetailPage = () => {
                                 );
                                 if (!chart)
                                   return <div className="text-muted">—</div>;
+
                                 if (typeof chart === "string") {
                                   return (
                                     <pre
@@ -425,17 +407,8 @@ export const PersonDetailPage = () => {
                                     </pre>
                                   );
                                 }
-                                return (
-                                  <pre
-                                    className="mb-0"
-                                    style={{
-                                      whiteSpace: "pre-wrap",
-                                      overflowX: "auto",
-                                    }}
-                                  >
-                                    {JSON.stringify(chart, null, 2)}
-                                  </pre>
-                                );
+
+                                return <VedicChartView chart={chart} />;
                               })()}
                             </Accordion.Body>
                           </Accordion.Item>
