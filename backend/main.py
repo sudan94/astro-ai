@@ -14,16 +14,19 @@ load_dotenv()
 # Create tables
 Base.metadata.create_all(bind=engine)
 
+ENV = os.getenv("ENV", "development")
+
 app = FastAPI(
     title="Astrology API",
     description="API for Vedic astrology calculations and AI-powered chat",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/docs" if ENV == "development" else None,
+    redoc_url="/redoc" if ENV == "development" else None
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -38,8 +41,13 @@ app.include_router(chat_router)
 @app.get("/")
 def root():
     """Root endpoint."""
-    return {
-        "message": "Welcome to Astrology API",
-        "version": "1.0.0",
-        "docs": "/docs"
-    }
+    if ENV == "development":
+        return {
+            "message": "Welcome to Astrology API",
+            "version": "1.0.0",
+            "docs": "/docs",
+        }
+    else:
+        return {"message": "Astrology API is running."}
+
+
