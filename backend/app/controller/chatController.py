@@ -16,7 +16,7 @@ async def chat_session(db: Session, chat: chatShema.ChatSessionCreate):
     try:
         db_chatsession = ChatSession(
             person_id=chat.person_id,
-            title = "Chat Session"
+            title = "New Chat"
         )
         db.add(db_chatsession)
         db.commit()
@@ -83,6 +83,9 @@ async def llm_chat(db: Session, chat: chatShema.ChatMessageCreate) -> Dict:
 
         # Get chat history for context (before saving new message)
         chat_history = await get_chat_history(db, chat.session_id)
+
+        if not chat_history:
+            await create_chat_title(db, chat.session_id, chat.message)
 
         # Save user message
         user_chat = Chat(
@@ -214,4 +217,27 @@ Guidelines:
     response = await llm.ainvoke(messages)
 
     return response.content
+
+async def create_chat_title(db: Session, session_id: int, message: str) -> ChatSession:
+    """Update the title of a chat session"""
+    llm = ChatOpenAI(
+        model="gpt-4.1-mini",
+        temperature=0.7,
+    )
+    title_prompt = f"Generate a concise and relevant title for the following chat session message:\n\n{message}\n\nTitle:"
+    response = await llm.ainvoke([HumanMessage(content=title_prompt)])
+    title = response.content.strip().strip('"')
+
+    chat_session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+    if not chat_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Chat session not found"
+        )
+
+    chat_session.title = title
+    db.commit()
+    db.refresh(chat_session)
+
+    return chat_session
 
