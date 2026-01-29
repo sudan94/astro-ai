@@ -254,7 +254,7 @@ export const PersonChatPage = () => {
                     cursor: "pointer",
                   }}
                 >
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>Session #{s.id}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{s.title}</div>
                   <div style={{ fontSize: 12, color: "#6c757d" }}>
                     {formatDateTime(s.created_at)}
                   </div>
@@ -269,7 +269,7 @@ export const PersonChatPage = () => {
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <div style={{ padding: "14px 18px", borderBottom: "1px solid #e9ecef" }}>
           <div style={{ fontWeight: 700 }}>
-            {activeSession ? `Session #${activeSession.id}` : "No session selected"}
+            {activeSession ? `${activeSession.title}` : "No session selected"}
             {messagesLoading ? <span style={{ marginLeft: 10 }}><Spinner size="sm" /></span> : null}
           </div>
         </div>

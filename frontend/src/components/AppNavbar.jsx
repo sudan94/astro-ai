@@ -15,7 +15,7 @@ export const AppNavbar = () => {
     <Navbar bg="primary" data-bs-theme="dark" sticky="top" expand="lg">
       <Container>
         <Navbar.Brand className="fw-bold fs-5" as={Link} to="/dashboard">
-          Vedic Astro
+          Vedic Astro AI
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-navbar" />
         <Navbar.Collapse id="main-navbar">

@@ -50,7 +50,7 @@ export const LoginPage = () => {
           <Col md={6} lg={4}>
             <Card className="shadow-lg">
               <Card.Body className="p-4">
-                <h1 className="text-center text-primary mb-2 fw-bold">Vedic Astro</h1>
+                <h1 className="text-center text-primary mb-2 fw-bold">Vedic Astro AI</h1>
                 <p className="text-center text-secondary mb-4">Sign in to your account</p>
 
                 <div className="d-flex justify-content-center mb-3">
