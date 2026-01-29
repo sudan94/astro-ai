@@ -16,6 +16,7 @@ async def chat_session(db: Session, chat: chatShema.ChatSessionCreate):
     try:
         db_chatsession = ChatSession(
             person_id=chat.person_id,
+            title = "Chat Session"
         )
         db.add(db_chatsession)
         db.commit()
