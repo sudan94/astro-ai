@@ -233,12 +233,12 @@ export const PersonChatPage = () => {
 
         <div style={{ padding: 10, overflowY: "auto", flex: 1 }}>
           <div style={{ fontSize: 12, color: "#6c757d", marginBottom: 8 }}>
-            Sessions {sessionsLoading ? <Spinner size="sm" /> : null}
+            Your chats {sessionsLoading ? <Spinner size="sm" /> : null}
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {sessions.length === 0 ? (
-              <div style={{ color: "#6c757d", fontSize: 13 }}>No sessions yet.</div>
+              <div style={{ color: "#6c757d", fontSize: 13 }}>No chats yet.</div>
             ) : (
               sessions.map((s) => (
                 <button
@@ -271,9 +271,6 @@ export const PersonChatPage = () => {
           <div style={{ fontWeight: 700 }}>
             {activeSession ? `Session #${activeSession.id}` : "No session selected"}
             {messagesLoading ? <span style={{ marginLeft: 10 }}><Spinner size="sm" /></span> : null}
-          </div>
-          <div style={{ color: "#6c757d", fontSize: 13 }}>
-            Chat messages render as Markdown (supports headings like <code>##</code>, lists, code blocks, etc.)
           </div>
         </div>
 
