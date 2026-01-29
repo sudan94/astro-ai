@@ -9,6 +9,7 @@ import { PersonsPage } from './pages/PersonsPage';
 import { PersonDetailPage } from './pages/PersonDetailPage';
 import { PersonChatPage } from './pages/PersonChatPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { LandingPage } from './pages/LandingPage';
 import { GOOGLE_CLIENT_ID } from './config/constants';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route
               path="/dashboard"
