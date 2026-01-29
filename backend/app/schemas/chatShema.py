@@ -4,7 +4,6 @@ from typing import Optional
 
 class ChatSessionCreate(BaseModel):
     person_id: int
-    title: str = Field(..., example="Chat about astrology")
 
 class ChatSessionResponse(BaseModel):
     id: int
