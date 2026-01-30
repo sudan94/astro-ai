@@ -162,11 +162,9 @@ export const PersonsPage = () => {
                         type="datetime-local"
                         value={form.date_of_birth}
                         onChange={(e2) => setForm((p) => ({ ...p, date_of_birth: e2.target.value }))}
+                        name ="date_of_birth"
                         required
                       />
-                      <Form.Text className="text-muted">
-                        Stored as entered (no timezone conversion).
-                      </Form.Text>
                     </Form.Group>
 
                     <Form.Group className="mb-3" style={{ position: 'relative' }}>
@@ -204,7 +202,7 @@ export const PersonsPage = () => {
                             <ListGroup variant="flush">
                               {(cityResults || []).length === 0 ? (
                                 <ListGroup.Item className="text-muted">
-                                  No matches. You can still type a place and enter lat/lng manually.
+                                  No matches found.
                                 </ListGroup.Item>
                               ) : (
                                 cityResults.map((item) => (
@@ -238,8 +236,8 @@ export const PersonsPage = () => {
                           <Form.Control
                             value={form.latitude}
                             onChange={(e2) => setForm((p) => ({ ...p, latitude: e2.target.value }))}
-                            placeholder="e.g. 27.7172"
                             required
+                            readOnly
                           />
                         </Form.Group>
                       </Col>
@@ -249,8 +247,8 @@ export const PersonsPage = () => {
                           <Form.Control
                             value={form.longitude}
                             onChange={(e2) => setForm((p) => ({ ...p, longitude: e2.target.value }))}
-                            placeholder="e.g. 85.3240"
                             required
+                            readOnly
                           />
                         </Form.Group>
                       </Col>
