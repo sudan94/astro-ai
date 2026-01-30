@@ -16,7 +16,7 @@ Base.metadata.create_all(bind=engine)
 
 ENV = os.getenv("ENV", "development")
 origins = [
-    "https://astro-ai-iota.vercel.app",  # <-- your frontend URL
+    "https://vedic-astro-ai.vercel.app",  # <-- your frontend URL
     "http://localhost:5173",             # <-- local dev
 ]
 
