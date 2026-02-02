@@ -12,7 +12,7 @@ from app.routes.chatRoutes import router as chat_router
 load_dotenv()
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 ENV = os.getenv("ENV", "development")
 origins = [
@@ -54,4 +54,9 @@ def root():
     else:
         return {"message": "Astrology API is running."}
 
+@app.get("/cleanup")
+def cleanup():
+    """Cleanup resources on shutdown."""
+    Base.metadata.drop_all(bind=engine)
+    pass
 

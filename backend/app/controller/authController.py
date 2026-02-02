@@ -61,3 +61,7 @@ def get_current_user(token: str, db: Session):
         return None
     except jwt.InvalidTokenError:
         return None
+
+def get_current_user_id(token: str, db: Session):
+    user = get_current_user(token, db)
+    return user.id if user else None

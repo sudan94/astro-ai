@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from app.models.Person import Person
 from app.schemas import personSchema
+from app.controller.authController import get_current_user_id
 
 async def create_person(db: Session, person: personSchema.PersonCreate):
     """Create a new person"""
@@ -36,7 +37,8 @@ def get_person(db: Session, person_id: int):
 
 def get_all_persons(db: Session, skip: int = 0, limit: int = 10):
     """Get all persons with pagination"""
-    return db.query(Person).offset(skip).limit(limit).all()
+    user_id = get_current_user_id(db.bind.execution_options().get("token"), db)
+    return db.query(Person).filter(Person.user_id == user_id).offset(skip).limit(limit).all()
 
 
 def update_person(db: Session, person_id: int, person_update: personSchema.PersonUpdate):
