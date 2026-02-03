@@ -12,7 +12,7 @@ from app.routes.chatRoutes import router as chat_router
 load_dotenv()
 
 # Create tables
-# Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 ENV = os.getenv("ENV", "development")
 origins = [
