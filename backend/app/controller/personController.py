@@ -42,10 +42,10 @@ def get_all_persons(db: Session, skip: int = 0, limit: int = 10, current_user=No
     return db.query(Person).filter(Person.user_id == current_user.id).offset(skip).limit(limit).all()
 
 
-def update_person(db: Session, person_id: int, person_update: personSchema.PersonUpdate):
+def update_person(db: Session, person_id: int, person_update: personSchema.PersonUpdate, current_user=None):
     """Update a person"""
     try:
-        db_person = db.query(Person).filter(Person.id == person_id).first()
+        db_person = db.query(Person).filter(Person.id == person_id, Person.user_id == current_user.id).first()
 
         if not db_person:
             raise HTTPException(
@@ -70,9 +70,9 @@ def update_person(db: Session, person_id: int, person_update: personSchema.Perso
         )
 
 
-def delete_person(db: Session, person_id: int):
+def delete_person(db: Session, person_id: int, current_user=None):
     """Delete a person"""
-    db_person = db.query(Person).filter(Person.id == person_id).first()
+    db_person = db.query(Person).filter(Person.id == person_id, Person.user_id == current_user.id).first()
 
     if not db_person:
         raise HTTPException(

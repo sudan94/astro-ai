@@ -34,9 +34,9 @@ def get_person_route(person_id: int, db: Session = Depends(get_db), current_user
 
 
 @router.put("/{person_id}", response_model=personSchema.PersonResponse)
-def update_person_route(person_id: int, person_update: personSchema.PersonUpdate, db: Session = Depends(get_db)):
+def update_person_route(person_id: int, person_update: personSchema.PersonUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Update a person"""
-    person = personController.get_person(db, person_id)
+    person = personController.get_person(db, person_id, current_user)
     if not person:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -45,9 +45,9 @@ def update_person_route(person_id: int, person_update: personSchema.PersonUpdate
     return personController.update_person(db, person_id, person_update)
 
 @router.delete("/{person_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_person_route(person_id: int, db: Session = Depends(get_db)):
+def delete_person_route(person_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Delete a person"""
-    person = personController.get_person(db, person_id)
+    person = personController.get_person(db, person_id, current_user)
     if not person:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
