@@ -139,7 +139,7 @@ export const PersonsPage = () => {
       <div className="bg-light" style={{ minHeight: 'calc(100vh - 56px)', paddingTop: '30px', paddingBottom: '30px' }}>
         <Container>
           <Row className="g-4">
-            {/* <Col lg={5}>
+            <Col lg={5}>
               <Card className="shadow-sm">
                 <Card.Body>
                   <h4 className="mb-3">Add Person</h4>
@@ -276,7 +276,7 @@ export const PersonsPage = () => {
                   </Form>
                 </Card.Body>
               </Card>
-            </Col> */}
+            </Col>
 
             <Col lg={12}>
               <Card className="shadow-sm">

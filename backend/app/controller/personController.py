@@ -4,9 +4,9 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from app.models.Person import Person
 from app.schemas import personSchema
-from app.controller.authController import get_current_user_id
 
-async def create_person(db: Session, person: personSchema.PersonCreate):
+
+async def create_person(db: Session, person: personSchema.PersonCreate, current_user):
     """Create a new person"""
     try:
         db_person = Person(
@@ -15,6 +15,7 @@ async def create_person(db: Session, person: personSchema.PersonCreate):
             place_of_birth=person.place_of_birth,
             latitude=person.latitude,
             longitude=person.longitude,
+            user_id=current_user.id
         )
         db.add(db_person)
         db.commit()
@@ -26,19 +27,19 @@ async def create_person(db: Session, person: personSchema.PersonCreate):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already exists"
+            detail="Failed to create person"
         )
 
 
-def get_person(db: Session, person_id: int):
+def get_person(db: Session, person_id: int, current_user=None):
     """Get a person by ID"""
-    return db.query(Person).filter(Person.id == person_id).first()
+    person = db.query(Person).filter(Person.id == person_id, Person.user_id == current_user.id).first()
+    return person
 
 
-def get_all_persons(db: Session, skip: int = 0, limit: int = 10):
+def get_all_persons(db: Session, skip: int = 0, limit: int = 10, current_user=None):
     """Get all persons with pagination"""
-    user_id = get_current_user_id(db.bind.execution_options().get("token"), db)
-    return db.query(Person).filter(Person.user_id == user_id).offset(skip).limit(limit).all()
+    return db.query(Person).filter(Person.user_id == current_user.id).offset(skip).limit(limit).all()
 
 
 def update_person(db: Session, person_id: int, person_update: personSchema.PersonUpdate):
