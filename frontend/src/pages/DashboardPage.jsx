@@ -9,7 +9,7 @@ export const DashboardPage = () => {
 
   return (
     <>
-      <AppNavbar />
+      <AppNavbar user={user} />
 
       <div className="bg-light" style={{ minHeight: 'calc(100vh - 56px)', paddingTop: '30px', paddingBottom: '30px' }}>
         <Container>

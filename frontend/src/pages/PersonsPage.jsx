@@ -16,6 +16,7 @@ import {
 import { AppNavbar } from '../components/AppNavbar';
 import { personService } from '../services/personService';
 import { locationService } from '../services/locationService';
+import { useAuth } from '../hooks/useAuth';
 
 function toDateTimeWithSeconds(value) {
   // value from <input type="datetime-local" /> => "YYYY-MM-DDTHH:MM" (or with seconds)
@@ -133,9 +134,11 @@ export const PersonsPage = () => {
     }
   };
 
+  const { user } = useAuth();
+
   return (
     <>
-      <AppNavbar />
+      <AppNavbar user={user} />
       <div className="bg-light" style={{ minHeight: 'calc(100vh - 56px)', paddingTop: '30px', paddingBottom: '30px' }}>
         <Container>
           <Row className="g-4">

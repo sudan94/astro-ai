@@ -15,6 +15,7 @@ import { AppNavbar } from "../components/AppNavbar";
 import { personService } from "../services/personService";
 import { astroService } from "../services/astroService";
 import VedicChartView from "../components/VedicChart";
+import { useAuth } from "../hooks/useAuth";
 
 function formatDateTime(value) {
   if (!value) return "—";
@@ -105,10 +106,11 @@ export const PersonDetailPage = () => {
   };
 
   const chart_details = normalizeMaybeJson(astro?.vedic_chart);
+  const { user } = useAuth();
 
   return (
     <>
-      <AppNavbar />
+      <AppNavbar user={user} />
       <div
         className="bg-light"
         style={{
@@ -233,7 +235,7 @@ export const PersonDetailPage = () => {
                       </Alert>
                     ) : (
                       <>
-      {/* Ascendant */}
+                        {/* Ascendant */}
                         <Card className="mb-3">
                           <Card.Body>
                             <Card.Title>Ascendant</Card.Title>
@@ -247,7 +249,7 @@ export const PersonDetailPage = () => {
                           </Card.Body>
                         </Card>
 
-                        <Accordion alwaysOpen defaultActiveKey={['analysis']}>
+                        <Accordion alwaysOpen defaultActiveKey={["analysis"]}>
                           <Accordion.Item eventKey="analysis">
                             <Accordion.Header>AI Analysis</Accordion.Header>
                             <Accordion.Body>
