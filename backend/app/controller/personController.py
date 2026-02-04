@@ -1,9 +1,10 @@
-from app.controller import astroController
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from app.models.Person import Person
 from app.schemas import personSchema
+from app.controller import astroController
+from app.models.ChatSession import ChatSession
 
 
 async def create_person(db: Session, person: personSchema.PersonCreate, current_user):
@@ -15,7 +16,7 @@ async def create_person(db: Session, person: personSchema.PersonCreate, current_
             place_of_birth=person.place_of_birth,
             latitude=person.latitude,
             longitude=person.longitude,
-            user_id=current_user.id
+            user_id=current_user.id,
         )
         db.add(db_person)
         db.commit()
@@ -26,31 +27,48 @@ async def create_person(db: Session, person: personSchema.PersonCreate, current_
     except IntegrityError:
         db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to create person"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to create person"
         )
 
 
 def get_person(db: Session, person_id: int, current_user=None):
     """Get a person by ID"""
-    person = db.query(Person).filter(Person.id == person_id, Person.user_id == current_user.id).first()
+    person = (
+        db.query(Person)
+        .filter(Person.id == person_id, Person.user_id == current_user.id)
+        .first()
+    )
     return person
 
 
 def get_all_persons(db: Session, skip: int = 0, limit: int = 10, current_user=None):
     """Get all persons with pagination"""
-    return db.query(Person).filter(Person.user_id == current_user.id).offset(skip).limit(limit).all()
+    return (
+        db.query(Person)
+        .filter(Person.user_id == current_user.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
-def update_person(db: Session, person_id: int, person_update: personSchema.PersonUpdate, current_user=None):
+def update_person(
+    db: Session,
+    person_id: int,
+    person_update: personSchema.PersonUpdate,
+    current_user=None,
+):
     """Update a person"""
     try:
-        db_person = db.query(Person).filter(Person.id == person_id, Person.user_id == current_user.id).first()
+        db_person = (
+            db.query(Person)
+            .filter(Person.id == person_id, Person.user_id == current_user.id)
+            .first()
+        )
 
         if not db_person:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Person not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"
             )
 
         # Update only provided fields
@@ -65,21 +83,34 @@ def update_person(db: Session, person_id: int, person_update: personSchema.Perso
     except IntegrityError:
         db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already exists"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists"
         )
 
 
 def delete_person(db: Session, person_id: int, current_user=None):
     """Delete a person"""
-    db_person = db.query(Person).filter(Person.id == person_id, Person.user_id == current_user.id).first()
+    db_person = (
+        db.query(Person)
+        .filter(Person.id == person_id, Person.user_id == current_user.id)
+        .first()
+    )
 
     if not db_person:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Person not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"
         )
 
     db.delete(db_person)
     db.commit()
     return {"message": "Person deleted successfully"}
+
+
+def get_person_by_session(db: Session, session_id: int, current_user=None):
+    """Get person by chat session ID"""
+    person = (
+        db.query(Person)
+        .join(ChatSession, ChatSession.person_id == Person.id)
+        .filter(ChatSession.id == session_id, Person.user_id == current_user.id)
+        .first()
+    )
+    return person
