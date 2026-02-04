@@ -1,4 +1,11 @@
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
 import { LandingNavbar } from "../components/LandingNavbar";
 
 export const LandingPage = () => {
@@ -6,151 +13,170 @@ export const LandingPage = () => {
     <>
       <LandingNavbar />
 
-      {/* Hero */}
-      <section className="bg-light py-5">
-        <Container>
-          <Row className="justify-content-center text-center">
-            <Col md={8}>
-              <h1 className="mb-3">
-                 An AI-Powered Way to Understand Vedic Astrology
-              </h1>
-              <p className="text-muted mb-4">
+      <Box sx={{ backgroundColor: "grey.100", py: 6 }}>
+        <Container maxWidth="lg">
+          <Grid container justifyContent="center" textAlign="center">
+            <Grid item xs={12} md={8}>
+              <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
+                An AI-Powered Way to Understand Vedic Astrology
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
                 This project turns complex astrological data into a structured,
                 human-readable format without superstition, noise, or confusion.
-              </p>
-              {/* <Button variant="primary" size="lg">
-                Learn More
-              </Button> */}
-            </Col>
-          </Row>
+              </Typography>
+            </Grid>
+          </Grid>
         </Container>
-      </section>
+      </Box>
 
-      {/* What is this */}
-      <section className="py-5" id="features">
-        <Container>
-          <Row className="mb-4">
-            <Col className="text-center">
-              <h2>What Is This?</h2>
-              <p className="text-muted">
-                Not a prediction app. Not a horoscope feed.
-              </p>
-            </Col>
-          </Row>
+      <Box sx={{ py: 6 }} id="features">
+        <Container maxWidth="lg">
+          <Grid container justifyContent="center" sx={{ mb: 4 }}>
+            <Grid item xs={12} md={8}>
+              <Box textAlign="center">
+                <Typography variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
+                  What Is This?
+                </Typography>
+                <Typography color="text.secondary">
+                  Not a prediction app. Not a horoscope feed.
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
 
-          <Row>
-            <Col md={4} className="mb-3">
-              <Card className="h-100">
-                <Card.Body>
-                  <Card.Title>Structured Data</Card.Title>
-                  <Card.Text>
+          <Grid container spacing={3} alignItems="stretch">
+            <Grid item xs={12} md={4} sx={{ display: "flex" }}>
+              <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
+                    Structured Data
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
                     Planetary positions, houses, nakshatras, and ascendant
                     presented as clean, explorable data not walls of text.
-                  </Card.Text>
-                </Card.Body>
+                  </Typography>
+                </CardContent>
               </Card>
-            </Col>
+            </Grid>
 
-            <Col md={4} className="mb-3">
-              <Card className="h-100">
-                <Card.Body>
-                  <Card.Title>Vedic Focus</Card.Title>
-                  <Card.Text>
+            <Grid item xs={12} md={4} sx={{ display: "flex" }}>
+              <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
+                    Vedic Focus
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
                     Built specifically around Vedic astrology concepts such as
                     nakshatras, padas, and planetary motion.
-                  </Card.Text>
-                </Card.Body>
+                  </Typography>
+                </CardContent>
               </Card>
-            </Col>
+            </Grid>
 
-            <Col md={4} className="mb-3">
-              <Card className="h-100">
-                <Card.Body>
-                  <Card.Title>Clarity First</Card.Title>
-                  <Card.Text>
+            <Grid item xs={12} md={4} sx={{ display: "flex" }}>
+              <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
+                    Clarity First
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
                     Designed for learners, developers, and curious minds who
-                    want understanding not blind belief.
-                  </Card.Text>
-                </Card.Body>
+                    want understanding, not blind belief.
+                  </Typography>
+                </CardContent>
               </Card>
-            </Col>
-          </Row>
+            </Grid>
+          </Grid>
         </Container>
-      </section>
+      </Box>
 
-      {/* Pricing */}
-      <section className="bg-light py-5" id="pricing">
-        <Container>
-          <Row className="mb-4">
-            <Col className="text-center">
-              <h2>Pricing</h2>
-              <p className="text-muted">
-                Simple and transparent.
-              </p>
-            </Col>
-          </Row>
+      <Box sx={{ backgroundColor: "grey.100", py: 6 }} id="pricing">
+        <Container maxWidth="lg">
+          <Grid container justifyContent="center" sx={{ mb: 3 }}>
+            <Grid item xs={12} md={6}>
+              <Box textAlign="center">
+                <Typography variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
+                  Pricing
+                </Typography>
+                <Typography color="text.secondary">
+                  Simple and transparent.
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
 
-          <Row className="justify-content-center">
-            <Col md={4} className="mb-3">
-              <Card className="text-center">
-                <Card.Body>
-                  <h3 className="mb-3">Free</h3>
-                  <p className="text-muted">
+          <Grid container spacing={3} justifyContent="center" alignItems="stretch">
+            <Grid item xs={12} md={5} lg={4} sx={{ display: "flex" }}>
+              <Card sx={{ flex: 1, textAlign: "center" }}>
+                <CardContent>
+                  <Typography variant="h5" sx={{ mb: 2 }}>
+                    Free
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
                     Access to chart structure, planetary data, and basic
                     visualizations.
-                  </p>
-                  <p className="fw-bold">€0</p>
-                </Card.Body>
+                  </Typography>
+                  <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 700 }}>
+                    EUR 0
+                  </Typography>
+                </CardContent>
               </Card>
-            </Col>
+            </Grid>
 
-            <Col md={4} className="mb-3">
-              <Card className="text-center border-primary">
-                <Card.Body>
-                  <h3 className="mb-3">Future Pro</h3>
-                  <p className="text-muted">
+            <Grid item xs={12} md={5} lg={4} sx={{ display: "flex" }}>
+              <Card
+                sx={{
+                  flex: 1,
+                  textAlign: "center",
+                  borderColor: "primary.main",
+                  borderWidth: 1,
+                  borderStyle: "solid",
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h5" sx={{ mb: 2 }}>
+                    Future Pro
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
                     Deeper interpretations, saved charts, and advanced analysis.
-                  </p>
-                  <p className="fw-bold">Coming later</p>
-                </Card.Body>
+                  </Typography>
+                  <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 700 }}>
+                    Coming later
+                  </Typography>
+                </CardContent>
               </Card>
-            </Col>
-          </Row>
+            </Grid>
+          </Grid>
         </Container>
-      </section>
+      </Box>
 
-      {/* About */}
-      <section className="py-5">
-        <Container>
-          <Row className="justify-content-center">
-            <Col md={8}>
-              <h2 className="text-center mb-3">About This Project</h2>
-              <p className="text-muted text-center">
+      <Box sx={{ py: 6 }}>
+        <Container maxWidth="lg">
+          <Grid container justifyContent="center">
+            <Grid item xs={12} md={8}>
+              <Typography variant="h4" textAlign="center" sx={{ mb: 2, fontWeight: 700 }}>
+                About This Project
+              </Typography>
+              <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
                 This is an independent project built with a focus on clarity,
                 engineering quality, and respect for traditional systems.
-              </p>
-              <p className="text-muted text-center">
+              </Typography>
+              <Typography variant="body2" color="text.secondary" textAlign="center">
                 The goal is not to replace astrologers but to provide a clean,
                 modern interface for understanding complex astrological data.
-              </p>
-            </Col>
-          </Row>
+              </Typography>
+            </Grid>
+          </Grid>
         </Container>
-      </section>
+      </Box>
 
-      {/* Footer */}
-      <footer className="bg-dark text-light py-4">
-        <Container>
-          <Row className="text-center">
-            <Col>
-              <small>
-                © {new Date().getFullYear()} Sudan ·
-                Made with care · All rights reserved
-              </small>
-            </Col>
-          </Row>
+      <Box sx={{ backgroundColor: "grey.900", color: "common.white", py: 3 }}>
+        <Container maxWidth="lg">
+          <Typography variant="caption" display="block" textAlign="center">
+            (c) {new Date().getFullYear()} Sudan - Made with care - All rights reserved
+          </Typography>
         </Container>
-      </footer>
+      </Box>
     </>
   );
 };

@@ -1,25 +1,36 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
-  Badge,
+  Box,
   Button,
   Card,
-  Col,
+  CardContent,
+  Chip,
+  CircularProgress,
   Container,
-  Form,
-  ListGroup,
-  Row,
-  Spinner,
+  Grid,
+  List,
+  ListItemButton,
+  Paper,
+  Stack,
   Table,
-} from 'react-bootstrap';
-import { AppNavbar } from '../components/AppNavbar';
-import { personService } from '../services/personService';
-import { locationService } from '../services/locationService';
-import { useAuth } from '../hooks/useAuth';
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
+import { AppNavbar } from "../components/AppNavbar";
+import { personService } from "../services/personService";
+import { locationService } from "../services/locationService";
+import { useAuth } from "../hooks/useAuth";
 
 function toDateTimeWithSeconds(value) {
-  // value from <input type="datetime-local" /> => "YYYY-MM-DDTHH:MM" (or with seconds)
   if (!value) return value;
   if (value.length === 16) return `${value}:00`;
   return value;
@@ -30,19 +41,19 @@ export const PersonsPage = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [persons, setPersons] = useState([]);
 
   const [form, setForm] = useState({
-    name: '',
-    date_of_birth: '',
-    place_of_birth: '',
-    latitude: '',
-    longitude: '',
+    name: "",
+    date_of_birth: "",
+    place_of_birth: "",
+    latitude: "",
+    longitude: "",
   });
 
-  const [cityQuery, setCityQuery] = useState('');
+  const [cityQuery, setCityQuery] = useState("");
   const [cityResults, setCityResults] = useState([]);
   const [cityLoading, setCityLoading] = useState(false);
   const [showCityResults, setShowCityResults] = useState(false);
@@ -51,19 +62,19 @@ export const PersonsPage = () => {
   const canSubmit = useMemo(() => {
     const nameOk = form.name.trim().length > 0;
     const dobOk = !!form.date_of_birth;
-    const latOk = form.latitude !== '' && !Number.isNaN(Number(form.latitude));
-    const lngOk = form.longitude !== '' && !Number.isNaN(Number(form.longitude));
+    const latOk = form.latitude !== "" && !Number.isNaN(Number(form.latitude));
+    const lngOk = form.longitude !== "" && !Number.isNaN(Number(form.longitude));
     return nameOk && dobOk && latOk && lngOk;
   }, [form]);
 
   const loadPersons = async () => {
-    setError('');
+    setError("");
     setLoading(true);
     try {
       const data = await personService.list({ skip: 0, limit: 100 });
       setPersons(data || []);
     } catch (e) {
-      setError(e?.response?.data?.detail || e?.message || 'Failed to load persons');
+      setError(e?.response?.data?.detail || e?.message || "Failed to load persons");
     } finally {
       setLoading(false);
     }
@@ -71,7 +82,6 @@ export const PersonsPage = () => {
 
   useEffect(() => {
     loadPersons();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -113,7 +123,7 @@ export const PersonsPage = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     if (!canSubmit) return;
 
     setSaving(true);
@@ -128,7 +138,7 @@ export const PersonsPage = () => {
       const created = await personService.create(payload);
       navigate(`/persons/${created.id}`);
     } catch (e2) {
-      setError(e2?.response?.data?.detail || e2?.message || 'Failed to create person');
+      setError(e2?.response?.data?.detail || e2?.message || "Failed to create person");
     } finally {
       setSaving(false);
     }
@@ -139,216 +149,269 @@ export const PersonsPage = () => {
   return (
     <>
       <AppNavbar user={user} />
-      <div className="bg-light" style={{ minHeight: 'calc(100vh - 56px)', paddingTop: '30px', paddingBottom: '30px' }}>
+      <Box
+        sx={{
+          backgroundColor: "grey.100",
+          minHeight: "calc(100vh - 64px)",
+          py: 4,
+        }}
+      >
         <Container>
-          <Row className="g-4">
-            <Col lg={5}>
-              <Card className="shadow-sm">
-                <Card.Body>
-                  <h4 className="mb-3">Add Person</h4>
-                  {error ? <Alert variant="danger">{error}</Alert> : null}
+          <Grid container spacing={4}>
+            <Grid item xs={12} lg={5}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h5" sx={{ mb: 2 }}>
+                    Add Person
+                  </Typography>
+                  {error ? (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {error}
+                    </Alert>
+                  ) : null}
 
-                  <Form onSubmit={onSubmit}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Name</Form.Label>
-                      <Form.Control
+                  <Box component="form" onSubmit={onSubmit}>
+                    <Stack spacing={2}>
+                      <TextField
+                        label="Name"
                         value={form.name}
                         onChange={(e2) => setForm((p) => ({ ...p, name: e2.target.value }))}
                         placeholder="Full name"
                         required
+                        fullWidth
                       />
-                    </Form.Group>
 
-                    <Form.Group className="mb-3">
-                      <Form.Label>Date & time of birth</Form.Label>
-                      <Form.Control
+                      <TextField
+                        label="Date and time of birth"
                         type="datetime-local"
                         value={form.date_of_birth}
                         onChange={(e2) => setForm((p) => ({ ...p, date_of_birth: e2.target.value }))}
-                        name ="date_of_birth"
+                        InputLabelProps={{ shrink: true }}
                         required
-                      />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" style={{ position: 'relative' }}>
-                      <Form.Label>Place of birth</Form.Label>
-                      <Form.Control
-                        value={cityQuery}
-                        onChange={(e2) => {
-                          const v = e2.target.value;
-                          setCityQuery(v);
-                          setForm((p) => ({ ...p, place_of_birth: v }));
-                          setShowCityResults(true);
-                        }}
-                        onFocus={() => setShowCityResults(true)}
-                        placeholder="Start typing a city (min 2 chars)"
+                        fullWidth
                       />
 
-                      {showCityResults ? (
-                        <div
-                          className="bg-white border rounded shadow-sm"
-                          style={{
-                            position: 'absolute',
-                            width: '100%',
-                            zIndex: 10,
-                            marginTop: '6px',
-                            maxHeight: '240px',
-                            overflowY: 'auto',
+                      <Box sx={{ position: "relative" }}>
+                        <TextField
+                          label="Place of birth"
+                          value={cityQuery}
+                          onChange={(e2) => {
+                            const v = e2.target.value;
+                            setCityQuery(v);
+                            setForm((p) => ({ ...p, place_of_birth: v }));
+                            setShowCityResults(true);
                           }}
-                        >
-                          {cityLoading ? (
-                            <div className="p-3 d-flex align-items-center gap-2">
-                              <Spinner size="sm" />
-                              <span className="text-muted">Searching…</span>
-                            </div>
-                          ) : (
-                            <ListGroup variant="flush">
-                              {(cityResults || []).length === 0 ? (
-                                <ListGroup.Item className="text-muted">
-                                  No matches found.
-                                </ListGroup.Item>
-                              ) : (
-                                cityResults.map((item) => (
-                                  <ListGroup.Item
-                                    action
-                                    key={`${item.city}-${item.country}-${item.lat}-${item.lng}`}
-                                    onClick={() => onPickCity(item)}
-                                  >
-                                    <div className="d-flex align-items-center justify-content-between">
-                                      <div>
-                                        <div className="fw-semibold">{item.city}</div>
-                                        <div className="text-muted small">{item.country}</div>
-                                      </div>
-                                      <div className="text-muted small">
-                                        {item.lat}, {item.lng}
-                                      </div>
-                                    </div>
-                                  </ListGroup.Item>
-                                ))
-                              )}
-                            </ListGroup>
-                          )}
-                        </div>
-                      ) : null}
-                    </Form.Group>
+                          onFocus={() => setShowCityResults(true)}
+                          placeholder="Start typing a city (min 2 chars)"
+                          fullWidth
+                        />
 
-                    <Row className="g-3">
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Latitude</Form.Label>
-                          <Form.Control
+                        {showCityResults ? (
+                          <Paper
+                            elevation={3}
+                            sx={{
+                              position: "absolute",
+                              width: "100%",
+                              zIndex: 10,
+                              mt: 1,
+                              maxHeight: 240,
+                              overflowY: "auto",
+                            }}
+                          >
+                            {cityLoading ? (
+                              <Stack direction="row" spacing={1} alignItems="center" sx={{ p: 2 }}>
+                                <CircularProgress size={16} />
+                                <Typography variant="body2" color="text.secondary">
+                                  Searching...
+                                </Typography>
+                              </Stack>
+                            ) : (
+                              <List disablePadding>
+                                {(cityResults || []).length === 0 ? (
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ p: 2 }}
+                                  >
+                                    No matches found.
+                                  </Typography>
+                                ) : (
+                                  cityResults.map((item) => (
+                                    <ListItemButton
+                                      key={`${item.city}-${item.country}-${item.lat}-${item.lng}`}
+                                      onClick={() => onPickCity(item)}
+                                    >
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                          width: "100%",
+                                        }}
+                                      >
+                                        <Box>
+                                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                            {item.city}
+                                          </Typography>
+                                          <Typography variant="caption" color="text.secondary">
+                                            {item.country}
+                                          </Typography>
+                                        </Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                          {item.lat}, {item.lng}
+                                        </Typography>
+                                      </Box>
+                                    </ListItemButton>
+                                  ))
+                                )}
+                              </List>
+                            )}
+                          </Paper>
+                        ) : null}
+                      </Box>
+
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            label="Latitude"
                             value={form.latitude}
                             onChange={(e2) => setForm((p) => ({ ...p, latitude: e2.target.value }))}
                             required
-                            readOnly
+                            fullWidth
+                            InputProps={{ readOnly: true }}
                           />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Longitude</Form.Label>
-                          <Form.Control
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            label="Longitude"
                             value={form.longitude}
                             onChange={(e2) => setForm((p) => ({ ...p, longitude: e2.target.value }))}
                             required
-                            readOnly
+                            fullWidth
+                            InputProps={{ readOnly: true }}
                           />
-                        </Form.Group>
-                      </Col>
-                    </Row>
+                        </Grid>
+                      </Grid>
 
-                    <div className="d-flex gap-2">
-                      <Button type="submit" variant="primary" disabled={!canSubmit || saving}>
-                        {saving ? 'Creating…' : 'Create'}
+                      <Stack direction="row" spacing={2}>
+                        <Button type="submit" variant="contained" disabled={!canSubmit || saving}>
+                          {saving ? "Creating..." : "Create"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outlined"
+                          onClick={() => {
+                            setForm({
+                              name: "",
+                              date_of_birth: "",
+                              place_of_birth: "",
+                              latitude: "",
+                              longitude: "",
+                            });
+                            setCityQuery("");
+                            setCityResults([]);
+                            setShowCityResults(false);
+                            setError("");
+                          }}
+                          disabled={saving}
+                        >
+                          Reset
+                        </Button>
+                      </Stack>
+                    </Stack>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} lg={7}>
+              <Card>
+                <CardContent>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
+                    alignItems={{ sm: "center" }}
+                    justifyContent="space-between"
+                    sx={{ mb: 2 }}
+                  >
+                    <Typography variant="h5">Persons</Typography>
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<PersonAddAltOutlinedIcon />}
+                      >
+                        Add Person
                       </Button>
                       <Button
-                        type="button"
-                        variant="outline-secondary"
-                        onClick={() => {
-                          setForm({ name: '', date_of_birth: '', place_of_birth: '', latitude: '', longitude: '' });
-                          setCityQuery('');
-                          setCityResults([]);
-                          setShowCityResults(false);
-                          setError('');
-                        }}
-                        disabled={saving}
+                        size="small"
+                        variant="outlined"
+                        startIcon={<RefreshIcon />}
+                        onClick={loadPersons}
+                        disabled={loading}
                       >
-                        Reset
+                        Refresh
                       </Button>
-                    </div>
-                  </Form>
-                </Card.Body>
-              </Card>
-            </Col>
-
-            <Col lg={12}>
-              <Card className="shadow-sm">
-                <Card.Body>
-                  <div className="d-flex align-items-center justify-content-between mb-3">
-                    <h4 className="mb-0">Persons</h4>
-                    <Button variant="success" size="sm">
-                      Add Person
-                    </Button>
-                    <Button variant="outline-primary" size="sm" onClick={loadPersons} disabled={loading}>
-                      Refresh
-                    </Button>
-                  </div>
+                    </Stack>
+                  </Stack>
 
                   {loading ? (
-                    <div className="d-flex align-items-center gap-2 text-muted">
-                      <Spinner size="sm" />
-                      Loading…
-                    </div>
+                    <Stack direction="row" spacing={1} alignItems="center" color="text.secondary">
+                      <CircularProgress size={18} />
+                      <Typography variant="body2">Loading...</Typography>
+                    </Stack>
                   ) : (
                     <>
-                      <div className="mb-2 text-muted small">
-                        Total: <Badge bg="secondary">{persons.length}</Badge>
-                      </div>
-                      <Table striped hover responsive className="mb-0">
-                        <thead>
-                          <tr>
-                            <th style={{ width: 80 }}>ID</th>
-                            <th>Name</th>
-                            <th>Birth place</th>
-                            <th style={{ width: 140 }}>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {persons.length === 0 ? (
-                            <tr>
-                              <td colSpan={4} className="text-muted">
-                                No persons yet. Create one on the left.
-                              </td>
-                            </tr>
-                          ) : (
-                            persons.map((p) => (
-                              <tr key={p.id}>
-                                <td>{p.id}</td>
-                                <td className="fw-semibold">{p.name}</td>
-                                <td className="text-muted">{p.place_of_birth || '—'}</td>
-                                <td>
-                                  <Button
-                                    variant="outline-primary"
-                                    size="sm"
-                                    onClick={() => navigate(`/persons/${p.id}`)}
-                                  >
-                                    Open
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </Table>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        Total: <Chip size="small" label={persons.length} />
+                      </Typography>
+                      <TableContainer component={Paper} variant="outlined">
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell sx={{ width: 80 }}>ID</TableCell>
+                              <TableCell>Name</TableCell>
+                              <TableCell>Birth place</TableCell>
+                              <TableCell sx={{ width: 140 }}>Action</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {persons.length === 0 ? (
+                              <TableRow>
+                                <TableCell colSpan={4} sx={{ color: "text.secondary" }}>
+                                  No persons yet. Create one on the left.
+                                </TableCell>
+                              </TableRow>
+                            ) : (
+                              persons.map((p) => (
+                                <TableRow key={p.id}>
+                                  <TableCell>{p.id}</TableCell>
+                                  <TableCell sx={{ fontWeight: 600 }}>{p.name}</TableCell>
+                                  <TableCell sx={{ color: "text.secondary" }}>
+                                    {p.place_of_birth || "-"}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Button
+                                      variant="outlined"
+                                      size="small"
+                                      onClick={() => navigate(`/persons/${p.id}`)}
+                                    >
+                                      Open
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            )}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
                     </>
                   )}
-                </Card.Body>
+                </CardContent>
               </Card>
-            </Col>
-          </Row>
+            </Grid>
+          </Grid>
         </Container>
-      </div>
+      </Box>
     </>
   );
 };
-

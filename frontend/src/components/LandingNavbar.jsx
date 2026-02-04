@@ -1,23 +1,32 @@
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
+import { AppBar, Box, Button, Container, Toolbar, Typography } from "@mui/material";
 
 export const LandingNavbar = () => {
-      return (
-    <>
-      <Navbar bg="primary" data-bs-theme="dark">
-        <Container>
-          <Navbar.Brand href="#home">Vedic Astro AI</Navbar.Brand>
-          <Nav className="me-auto">
-            <Nav.Link href="#features">Features</Nav.Link>
-            <Nav.Link href="#pricing">Pricing</Nav.Link>
-          </Nav>
-          <Nav className="ms-auto">
-            <Nav.Link href="/login" className='d-flex'>Login</Nav.Link>
-            </Nav>
-        </Container>
-      </Navbar>
-    </>
+  return (
+    <AppBar position="static" color="primary" elevation={1}>
+      <Container>
+        <Toolbar sx={{ gap: 2 }}>
+          <Typography
+            component="a"
+            href="#home"
+            variant="h6"
+            sx={{ color: "common.white", textDecoration: "none", fontWeight: 700 }}
+          >
+            Vedic Astro AI
+          </Typography>
+          <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
+            <Button color="inherit" href="#features">
+              Features
+            </Button>
+            <Button color="inherit" href="#pricing">
+              Pricing
+            </Button>
+          </Box>
+          <Button color="inherit" href="/login">
+            Login
+          </Button>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 };
 
