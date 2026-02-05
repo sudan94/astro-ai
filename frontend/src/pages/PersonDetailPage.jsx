@@ -127,8 +127,8 @@ export const PersonDetailPage = () => {
             <Alert severity="warning">Person not found.</Alert>
           ) : (
             <Grid container spacing={4}>
-              <Grid item xs={12}>
-                <Card>
+              <Grid item xs={12} >
+                <Card >
                   <CardContent>
                     <Stack
                       direction={{ xs: "column", sm: "row" }}
