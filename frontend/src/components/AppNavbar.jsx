@@ -1,36 +1,91 @@
-import { useNavigate, Link } from 'react-router-dom';
-import { Navbar, Container, Nav, Button } from 'react-bootstrap';
-import { useAuth } from '../hooks/useAuth';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { useAuth } from "../hooks/useAuth";
 
-export const AppNavbar = () => {
+export const AppNavbar = ({ user }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleLogout = async () => {
+    setAnchorEl(null);
     await logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
-    <Navbar bg="primary" data-bs-theme="dark" sticky="top" expand="lg">
-      <Container>
-        <Navbar.Brand className="fw-bold fs-5" as={Link} to="/dashboard">
-          Vedic Astro AI
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="main-navbar" />
-        <Navbar.Collapse id="main-navbar">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
-            <Nav.Link as={Link} to="/persons">Persons</Nav.Link>
-          </Nav>
-          <div className="ms-auto">
-            <Button variant="danger" size="sm" onClick={handleLogout}>
-              Logout
+    <AppBar position="sticky" color="primary" elevation={1}>
+      <Container maxWidth="lg">
+        <Toolbar disableGutters sx={{ gap: 2 }}>
+          <Typography
+            component={Link}
+            to="/dashboard"
+            variant="h6"
+            sx={{ color: "common.white", textDecoration: "none", fontWeight: 700 }}
+          >
+            Vedic Astro AI
+          </Typography>
+
+          <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
+            <Button component={Link} to="/dashboard" color="inherit">
+              Dashboard
             </Button>
-          </div>
-        </Navbar.Collapse>
+            <Button component={Link} to="/persons" color="inherit">
+              Persons
+            </Button>
+          </Box>
+
+          <IconButton
+            onClick={(event) => setAnchorEl(event.currentTarget)}
+            size="small"
+            aria-label="Open user menu"
+          >
+            <Avatar
+              src={user?.avatar_url}
+              alt="User profile"
+              sx={{ width: 32, height: 32 }}
+            />
+          </IconButton>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem onClick={() => setAnchorEl(null)}>
+              <ListItemIcon>
+                <SettingsIcon fontSize="small" />
+              </ListItemIcon>
+              Settings
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" />
+              </ListItemIcon>
+              Logout
+            </MenuItem>
+          </Menu>
+        </Toolbar>
       </Container>
-    </Navbar>
+    </AppBar>
   );
 };
-

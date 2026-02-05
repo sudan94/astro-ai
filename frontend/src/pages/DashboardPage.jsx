@@ -1,7 +1,21 @@
-import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, ListGroup } from 'react-bootstrap';
-import { useAuth } from '../hooks/useAuth';
-import { AppNavbar } from '../components/AppNavbar';
+import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from "@mui/material";
+import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
+import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
+import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
+import { useAuth } from "../hooks/useAuth";
+import { AppNavbar } from "../components/AppNavbar";
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -9,82 +23,137 @@ export const DashboardPage = () => {
 
   return (
     <>
-      <AppNavbar />
+      <AppNavbar user={user} />
 
-      <div className="bg-light" style={{ minHeight: 'calc(100vh - 56px)', paddingTop: '30px', paddingBottom: '30px' }}>
+      <Box
+        sx={{
+          backgroundColor: "grey.100",
+          minHeight: "calc(100vh - 64px)",
+          py: 4,
+        }}
+      >
         <Container>
-          {/* Welcome Section */}
-          <Card className="mb-4 shadow-sm">
-            <Card.Body>
-              <h2 className="mb-4">Welcome, <span className="text-primary">{user?.name || user?.email}</span>!</h2>
+          <Card sx={{ mb: 4 }}>
+            <CardContent>
+              <Typography variant="h4" sx={{ mb: 3 }}>
+                Welcome,{" "}
+                <Box component="span" sx={{ color: "primary.main" }}>
+                  {user?.name || user?.email}
+                </Box>
+                !
+              </Typography>
 
-              <div className="bg-light p-3 rounded border-start border-primary border-4">
-                <p className="mb-2"><strong>Email:</strong> {user?.email}</p>
-                <p className="mb-0"><strong>Name:</strong> {user?.name || 'N/A'}</p>
-              </div>
-            </Card.Body>
+              <Box
+                sx={{
+                  backgroundColor: "grey.50",
+                  p: 2,
+                  borderLeft: 4,
+                  borderColor: "primary.main",
+                  borderRadius: 1,
+                }}
+              >
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <strong>Email:</strong> {user?.email}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Name:</strong> {user?.name || "N/A"}
+                </Typography>
+              </Box>
+            </CardContent>
           </Card>
 
-          {/* Features Grid */}
-          <h3 className="mb-4 fw-bold">Coming Soon Features</h3>
-          <Row className="mb-4">
-            <Col md={4} className="mb-3">
-              <Card className="h-100 shadow-sm">
-                <Card.Body className="text-center">
-                  <h5 className="card-title text-primary mb-3">📊 Birth Chart Analysis</h5>
-                  <p className="card-text text-secondary">Detailed astrological insights</p>
-                </Card.Body>
+          <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
+            Coming Soon Features
+          </Typography>
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent sx={{ textAlign: "center" }}>
+                  <AnalyticsOutlinedIcon color="primary" sx={{ fontSize: 36, mb: 1 }} />
+                  <Typography variant="h6" color="primary" sx={{ mb: 1 }}>
+                    Birth Chart Analysis
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Detailed astrological insights
+                  </Typography>
+                </CardContent>
               </Card>
-            </Col>
-            <Col md={4} className="mb-3">
-              <Card className="h-100 shadow-sm">
-                <Card.Body className="text-center">
-                  <h5 className="card-title text-primary mb-3">📍 Location Search</h5>
-                  <p className="card-text text-secondary">Find cities and coordinates</p>
-                </Card.Body>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent sx={{ textAlign: "center" }}>
+                  <PlaceOutlinedIcon color="primary" sx={{ fontSize: 36, mb: 1 }} />
+                  <Typography variant="h6" color="primary" sx={{ mb: 1 }}>
+                    Location Search
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Find cities and coordinates
+                  </Typography>
+                </CardContent>
               </Card>
-            </Col>
-            <Col md={4} className="mb-3">
-              <Card className="h-100 shadow-sm">
-                <Card.Body className="text-center">
-                  <h5 className="card-title text-primary mb-3">✨ Astrology Readings</h5>
-                  <p className="card-text text-secondary">Personalized readings</p>
-                </Card.Body>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent sx={{ textAlign: "center" }}>
+                  <AutoAwesomeOutlinedIcon color="primary" sx={{ fontSize: 36, mb: 1 }} />
+                  <Typography variant="h6" color="primary" sx={{ mb: 1 }}>
+                    Astrology Readings
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Personalized readings
+                  </Typography>
+                </CardContent>
               </Card>
-            </Col>
-          </Row>
+            </Grid>
+          </Grid>
 
-          {/* Quick Actions */}
-          <Card className="shadow-sm">
-            <Card.Body>
-              <h5 className="card-title mb-3">Quick Actions</h5>
-              <ListGroup variant="flush">
-                <ListGroup.Item className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <strong>→ Manage Persons</strong>
-                    <p className="text-secondary small mb-0">Add people and open person detail pages</p>
-                  </div>
-                  <Button variant="outline-primary" size="sm" onClick={() => navigate('/persons')}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Quick Actions
+              </Typography>
+              <List disablePadding>
+                <ListItem divider secondaryAction={
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => navigate("/persons")}
+                  >
                     Open
                   </Button>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <strong>→ View Birth Chart</strong>
-                  <p className="text-secondary small mb-0">Analyze your astrological chart</p>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <strong>→ Search Locations</strong>
-                  <p className="text-secondary small mb-0">Find coordinates for chart calculations</p>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <strong>→ Get Reading</strong>
-                  <p className="text-secondary small mb-0">Receive personalized astrology insights</p>
-                </ListGroup.Item>
-              </ListGroup>
-            </Card.Body>
+                }>
+                  <ListItemText
+                    primary="Manage Persons"
+                    secondary="Add people and open person detail pages"
+                    primaryTypographyProps={{ fontWeight: 600 }}
+                  />
+                </ListItem>
+                <ListItem divider>
+                  <ListItemText
+                    primary="View Birth Chart"
+                    secondary="Analyze your astrological chart"
+                    primaryTypographyProps={{ fontWeight: 600 }}
+                  />
+                </ListItem>
+                <ListItem divider>
+                  <ListItemText
+                    primary="Search Locations"
+                    secondary="Find coordinates for chart calculations"
+                    primaryTypographyProps={{ fontWeight: 600 }}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="Get Reading"
+                    secondary="Receive personalized astrology insights"
+                    primaryTypographyProps={{ fontWeight: 600 }}
+                  />
+                </ListItem>
+              </List>
+            </CardContent>
           </Card>
         </Container>
-      </div>
+      </Box>
     </>
   );
 };

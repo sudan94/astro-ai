@@ -2,7 +2,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Button, Form, Spinner } from "react-bootstrap";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+  ButtonBase,
+  IconButton,
+  Drawer,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import AddCommentOutlinedIcon from "@mui/icons-material/AddCommentOutlined";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import SendIcon from "@mui/icons-material/Send";
 import { chatService } from "../services/chatService";
 import { personService } from "../services/personService";
 
@@ -68,6 +84,8 @@ const Markdown = ({ children }) => (
 export const PersonChatPage = () => {
   const { id } = useParams();
   const personId = Number(id);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const [error, setError] = useState("");
   const [person, setPerson] = useState(null);
@@ -82,6 +100,8 @@ export const PersonChatPage = () => {
 
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const bottomRef = useRef(null);
 
@@ -143,13 +163,15 @@ export const PersonChatPage = () => {
     if (!Number.isFinite(personId)) return;
     loadPerson();
     loadSessions({ autoCreateIfEmpty: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [personId]);
+
+  useEffect(() => {
+    setSidebarOpen(!isSmallScreen);
+  }, [isSmallScreen]);
 
   useEffect(() => {
     if (!activeSessionId) return;
     loadHistory(activeSessionId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSessionId]);
 
   useEffect(() => {
@@ -194,147 +216,219 @@ export const PersonChatPage = () => {
   };
 
   const headerTitle = personLoading
-    ? "Loading…"
+    ? "Loading..."
     : person
-      ? `Chat — ${person.name}`
+      ? `Chat - ${person.name}`
       : "Chat";
 
-  return (
-    <div style={{ height: "100vh", display: "flex", background: "#ffffff" }}>
-      {/* Sidebar */}
-      <div
-        style={{
-          width: 320,
-          borderRight: "1px solid #e9ecef",
-          background: "#f8f9fa",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div style={{ padding: 16, borderBottom: "1px solid #e9ecef" }}>
-          <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{headerTitle}</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <Button size="sm" variant="primary" onClick={onNewSession} disabled={sessionsLoading}>
-              New chat
-            </Button>
-            <Button
-              size="sm"
-              variant="outline-secondary"
-              as={Link}
-              to={`/persons/${personId}`}
-            >
-              Person
-            </Button>
-          </div>
-          {error ? (
-            <div style={{ marginTop: 10, color: "#b02a37", fontSize: 13 }}>{error}</div>
-          ) : null}
-        </div>
+  const handleMenuClick = () => {
+    if (isSmallScreen) {
+      setSidebarOpen(true);
+    } else {
+      setSidebarOpen((prev) => !prev);
+    }
+  };
 
-        <div style={{ padding: 10, overflowY: "auto", flex: 1 }}>
-          <div style={{ fontSize: 12, color: "#6c757d", marginBottom: 8 }}>
-            Your chats {sessionsLoading ? <Spinner size="sm" /> : null}
-          </div>
+  const sidebarContent = (
+    <Box
+      sx={{
+        width: 320,
+        height: "100%",
+        borderRight: "1px solid",
+        borderColor: "divider",
+        background: "grey.50",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Typography sx={{ fontWeight: 700, fontSize: 16, mb: 0.5 }}>
+            {headerTitle}
+          </Typography>
+          <IconButton
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+            size="small"
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+        </Box>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+          <Button
+            size="small"
+            variant="contained"
+            onClick={onNewSession}
+            disabled={sessionsLoading}
+            startIcon={<AddCommentOutlinedIcon />}
+          >
+            New chat
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            component={Link}
+            to={`/persons/${personId}`}
+            startIcon={<PersonOutlinedIcon />}
+          >
+            Person
+          </Button>
+        </Box>
+        {error ? (
+          <Typography sx={{ mt: 1, color: "error.main", fontSize: 13 }}>
+            {error}
+          </Typography>
+        ) : null}
+      </Box>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {sessions.length === 0 ? (
-              <div style={{ color: "#6c757d", fontSize: 13 }}>No chats yet.</div>
-            ) : (
-              sessions.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setActiveSessionId(s.id)}
-                  style={{
-                    textAlign: "left",
-                    border: "1px solid #dee2e6",
-                    background: s.id === activeSessionId ? "#e7f1ff" : "#ffffff",
-                    padding: "10px 12px",
-                    borderRadius: 10,
-                    cursor: "pointer",
+      <Box sx={{ p: 1.5, overflowY: "auto", flex: 1 }}>
+        <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 1 }}>
+          Your chats {sessionsLoading ? <CircularProgress size={12} /> : null}
+        </Typography>
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+          {sessions.length === 0 ? (
+            <Typography sx={{ color: "text.secondary", fontSize: 13 }}>
+              No chats yet.
+            </Typography>
+          ) : (
+            sessions.map((s) => (
+              <ButtonBase
+                key={s.id}
+                onClick={() => {
+                  setActiveSessionId(s.id);
+                  if (isSmallScreen) setSidebarOpen(false);
+                }}
+                sx={{ textAlign: "left", borderRadius: 2 }}
+              >
+                <Box
+                  sx={{
+                    width: "100%",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    backgroundColor:
+                      s.id === activeSessionId ? "action.selected" : "common.white",
+                    p: 1.5,
+                    borderRadius: 2,
                   }}
                 >
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{s.title}</div>
-                  <div style={{ fontSize: 12, color: "#6c757d" }}>
+                  <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
+                    {s.title}
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
                     {formatDateTime(s.created_at)}
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
+                  </Typography>
+                </Box>
+              </ButtonBase>
+            ))
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
 
-      {/* Main */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "14px 18px", borderBottom: "1px solid #e9ecef" }}>
-          <div style={{ fontWeight: 700 }}>
-            {activeSession ? `${activeSession.title}` : "No session selected"}
-            {messagesLoading ? <span style={{ marginLeft: 10 }}><Spinner size="sm" /></span> : null}
-          </div>
-        </div>
+  return (
+    <Box sx={{ height: "100vh", display: "flex", background: "#ffffff" }}>
+      {isSmallScreen ? (
+        <Drawer
+          anchor="left"
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          ModalProps={{ keepMounted: true }}
+          PaperProps={{ sx: { width: 320 } }}
+        >
+          {sidebarContent}
+        </Drawer>
+      ) : sidebarOpen ? (
+        sidebarContent
+      ) : null}
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "18px 0" }}>
-          <div style={{ maxWidth: 860, margin: "0 auto", padding: "0 18px" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton
+              onClick={handleMenuClick}
+              aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+              size="small"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography sx={{ fontWeight: 700 }}>
+              {activeSession ? `${activeSession.title}` : "No session selected"}
+              {messagesLoading ? (
+                <Box component="span" sx={{ ml: 1 }}>
+                  <CircularProgress size={12} />
+                </Box>
+              ) : null}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ flex: 1, overflowY: "auto", py: 2 }}>
+          <Box sx={{ maxWidth: 860, mx: "auto", px: 2 }}>
             {messages.length === 0 ? (
-              <div style={{ color: "#6c757d" }}>
-                Start by asking a question about the person’s chart.
-              </div>
+              <Typography sx={{ color: "text.secondary" }}>
+                Start by asking a question about the person's chart.
+              </Typography>
             ) : (
               messages.map((m, idx) => {
                 const isUser = m.role === "user";
                 const raw = typeof m.content === "string" ? m.content : String(m.content);
                 const maybeParsed = safeJsonParse(raw);
-                const content = maybeParsed ? `\`\`\`json\n${JSON.stringify(maybeParsed, null, 2)}\n\`\`\`` : raw;
+                const content = maybeParsed
+                  ? `\`\`\`json\n${JSON.stringify(maybeParsed, null, 2)}\n\`\`\``
+                  : raw;
 
                 return (
-                  <div
+                  <Box
                     key={`${idx}-${m.role}`}
-                    style={{
+                    sx={{
                       display: "flex",
                       justifyContent: isUser ? "flex-end" : "flex-start",
-                      marginBottom: 14,
+                      mb: 2,
                     }}
                   >
-                    <div
-                      style={{
+                    <Box
+                      sx={{
                         maxWidth: "85%",
-                        background: isUser ? "#e7f1ff" : "#f8f9fa",
-                        border: "1px solid #dee2e6",
-                        borderRadius: 14,
-                        padding: "10px 12px",
+                        background: isUser ? "action.selected" : "grey.50",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        p: 1.5,
                       }}
                     >
-                      <div style={{ fontSize: 12, color: "#6c757d", marginBottom: 6 }}>
+                      <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 0.5 }}>
                         {isUser ? "You" : "Assistant"}
-                      </div>
-                      <div style={{ fontSize: 14, lineHeight: 1.45 }}>
+                      </Typography>
+                      <Box sx={{ fontSize: 14, lineHeight: 1.5 }}>
                         <Markdown>{content}</Markdown>
-                      </div>
-                    </div>
-                  </div>
+                      </Box>
+                    </Box>
+                  </Box>
                 );
               })
             )}
             <div ref={bottomRef} />
-          </div>
-        </div>
+          </Box>
+        </Box>
 
-        <div style={{ borderTop: "1px solid #e9ecef", padding: 16 }}>
-          <div style={{ maxWidth: 860, margin: "0 auto" }}>
-            <Form
+        <Box sx={{ borderTop: "1px solid", borderColor: "divider", p: 2 }}>
+          <Box sx={{ maxWidth: 860, mx: "auto" }}>
+            <Box
+              component="form"
               onSubmit={(e) => {
                 e.preventDefault();
                 onSend();
               }}
             >
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
-                <Form.Control
-                  as="textarea"
+              <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-end" }}>
+                <TextField
+                  multiline
                   rows={2}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Message… (Enter to send, Shift+Enter for newline)"
+                  placeholder="Message... (Enter to send, Shift+Enter for newline)"
                   disabled={!activeSessionId || sending}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -342,17 +436,28 @@ export const PersonChatPage = () => {
                       onSend();
                     }
                   }}
-                  style={{ resize: "none" }}
+                  fullWidth
                 />
-                <Button type="submit" variant="primary" disabled={!activeSessionId || sending}>
-                  {sending ? "Sending…" : "Send"}
-                </Button>
-              </div>
-            </Form>
-          </div>
-        </div>
-      </div>
-    </div>
+                {isSmallScreen ? (
+                  <IconButton
+                    type="submit"
+                    color="primary"
+                    disabled={!activeSessionId || sending}
+                    aria-label="Send message"
+                    sx={{ alignSelf: "center" }}
+                  >
+                    <SendIcon />
+                  </IconButton>
+                ) : (
+                  <Button type="submit" variant="contained" disabled={!activeSessionId || sending}>
+                    {sending ? "Sending..." : "Send"}
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
-

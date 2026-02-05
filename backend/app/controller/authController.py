@@ -1,6 +1,8 @@
+from app.config.database import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
 import os
 import jwt
 from jwt import encode as jwt_encode
@@ -15,10 +17,16 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+def create_access_token(user: User, expires_delta: timedelta = None):
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-    to_encode.update({"exp": expire})
+
+    to_encode = {
+        "sub": str(user.id),   # 🔑 INTERNAL USER ID
+        "exp": expire,
+    }
+
     return jwt_encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def verify_google_token(token: str):
@@ -43,25 +51,25 @@ def create_or_update_user(db: Session, google_id: str, email: str, name: str = N
     db.refresh(user)
     return user
 
-def get_current_user(token: str, db: Session):
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+):
     try:
-        payload = jwt.decode(
-            token,
-            os.getenv("SECRET_KEY", "your-secret-key"),
-            algorithms=["HS256"],
-        )
-        google_id = payload.get("sub")
-        if not google_id:
-            return None
-        user = db.query(User).filter(User.google_id == google_id).first()
-        if not user or not user.is_active:
-            return None
-        return user
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
-        return None
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
-def get_current_user_id(token: str, db: Session):
-    user = get_current_user(token, db)
-    return user.id if user else None
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        user = db.query(User).filter(User.id == int(user_id)).first()
+
+        if not user or not user.is_active:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        return user
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")

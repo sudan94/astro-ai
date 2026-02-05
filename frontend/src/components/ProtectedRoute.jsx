@@ -1,17 +1,22 @@
-import { Navigate } from 'react-router-dom';
-import { Spinner } from 'react-bootstrap';
-import { useAuth } from '../hooks/useAuth';
+import { Navigate } from "react-router-dom";
+import { Box, CircularProgress } from "@mui/material";
+import { useAuth } from "../hooks/useAuth";
 
 export const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      </div>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress size={28} />
+      </Box>
     );
   }
 

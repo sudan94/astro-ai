@@ -37,6 +37,6 @@ async def login(request: Request, db: Session = Depends(get_db)):
 
     user = authController.create_or_update_user(db, google_id, email, name, avatar_url)
 
-    access_token = authController.create_access_token({"sub": user.google_id}, timedelta(minutes=authController.ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = authController.create_access_token(user, timedelta(minutes=authController.ACCESS_TOKEN_EXPIRE_MINUTES))
 
     return {"token": access_token, "user": userSchema.UserResponse.from_orm(user)}
