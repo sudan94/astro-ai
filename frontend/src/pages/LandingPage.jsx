@@ -44,8 +44,17 @@ export const LandingPage = () => {
             </Grid>
           </Grid>
 
-          <Grid container spacing={3} alignItems="stretch">
-            <Grid item xs={12} md={4} sx={{ display: "flex" }}>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 3,
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(3, minmax(0, 1fr))",
+              },
+            }}
+          >
+            <Box sx={{ display: "flex" }}>
               <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ mb: 1 }}>
@@ -57,9 +66,9 @@ export const LandingPage = () => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} md={4} sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex" }}>
               <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ mb: 1 }}>
@@ -71,9 +80,9 @@ export const LandingPage = () => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} md={4} sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex" }}>
               <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ mb: 1 }}>
@@ -85,8 +94,8 @@ export const LandingPage = () => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Container>
       </Box>
 

@@ -50,7 +50,7 @@ async def send_chat_message(
     chat: chatShema.ChatMessageCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)
 ):
     """Send a chat message and get AI response with astrological context"""
-    person = personController.get_person(db, chat.person_id, current_user)
+    person = personController.get_person_by_session(db, chat.session_id, current_user)
     if not person:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"

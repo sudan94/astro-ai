@@ -110,8 +110,8 @@ export const PersonDetailPage = () => {
   return (
     <>
       <AppNavbar user={user} />
-      <Box sx={{ backgroundColor: "grey.100", minHeight: "calc(100vh - 64px)", py: 4 }}>
-        <Container>
+      <Box sx={{ backgroundColor: "grey.100", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="lg" sx={{ height: "100%" }}>
           {error ? (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
@@ -142,7 +142,7 @@ export const PersonDetailPage = () => {
                     </Stack>
 
                     <Grid container spacing={3} sx={{ mb: 2 }}>
-                      <Grid item xs={12} md={3}>
+                      <Grid item xs={12} >
                         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                           {person.name}
                         </Typography>
@@ -150,7 +150,7 @@ export const PersonDetailPage = () => {
                           {person.place_of_birth || "-"}
                         </Typography>
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid item xs={12}>
                         <Typography variant="caption" color="text.secondary">
                           Date of birth
                         </Typography>
@@ -158,7 +158,7 @@ export const PersonDetailPage = () => {
                           {formatDateTime(person.date_of_birth)}
                         </Typography>
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid item xs={12}>
                         <Typography variant="caption" color="text.secondary">
                           Latitude / Longitude
                         </Typography>
@@ -166,7 +166,7 @@ export const PersonDetailPage = () => {
                           {person.latitude}, {person.longitude}
                         </Typography>
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid item xs={12}>
                         <Typography variant="caption" color="text.secondary">
                           Created
                         </Typography>
@@ -180,9 +180,6 @@ export const PersonDetailPage = () => {
                       <Button component={Link} to="/persons" variant="outlined" size="small">
                         Back
                       </Button>
-                      <Button variant="outlined" size="small" onClick={loadPerson}>
-                        Refresh
-                      </Button>
                       <Button
                         component={Link}
                         to={`/persons/${personId}/chat`}
@@ -191,7 +188,7 @@ export const PersonDetailPage = () => {
                         variant="contained"
                         size="small"
                       >
-                        Open Chat (full screen)
+                        Open Chat
                       </Button>
                     </Stack>
                   </CardContent>
@@ -210,14 +207,6 @@ export const PersonDetailPage = () => {
                     >
                       <Typography variant="h5">Chart and AI Analysis</Typography>
                       <Stack direction="row" spacing={1}>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={loadAstro}
-                          disabled={astroLoading}
-                        >
-                          Refresh
-                        </Button>
                         <Button
                           variant="contained"
                           size="small"

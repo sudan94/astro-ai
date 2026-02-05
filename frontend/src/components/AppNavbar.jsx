@@ -5,6 +5,7 @@ import {
   Avatar,
   Box,
   Button,
+  Container,
   Divider,
   IconButton,
   ListItemIcon,
@@ -30,59 +31,61 @@ export const AppNavbar = ({ user }) => {
 
   return (
     <AppBar position="sticky" color="primary" elevation={1}>
-      <Toolbar sx={{ gap: 2 }}>
-        <Typography
-          component={Link}
-          to="/dashboard"
-          variant="h6"
-          sx={{ color: "common.white", textDecoration: "none", fontWeight: 700 }}
-        >
-          Vedic Astro AI
-        </Typography>
+      <Container maxWidth="lg">
+        <Toolbar disableGutters sx={{ gap: 2 }}>
+          <Typography
+            component={Link}
+            to="/dashboard"
+            variant="h6"
+            sx={{ color: "common.white", textDecoration: "none", fontWeight: 700 }}
+          >
+            Vedic Astro AI
+          </Typography>
 
-        <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
-          <Button component={Link} to="/dashboard" color="inherit">
-            Dashboard
-          </Button>
-          <Button component={Link} to="/persons" color="inherit">
-            Persons
-          </Button>
-        </Box>
+          <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
+            <Button component={Link} to="/dashboard" color="inherit">
+              Dashboard
+            </Button>
+            <Button component={Link} to="/persons" color="inherit">
+              Persons
+            </Button>
+          </Box>
 
-        <IconButton
-          onClick={(event) => setAnchorEl(event.currentTarget)}
-          size="small"
-          aria-label="Open user menu"
-        >
-          <Avatar
-            src={user?.avatar_url}
-            alt="User profile"
-            sx={{ width: 32, height: 32 }}
-          />
-        </IconButton>
+          <IconButton
+            onClick={(event) => setAnchorEl(event.currentTarget)}
+            size="small"
+            aria-label="Open user menu"
+          >
+            <Avatar
+              src={user?.avatar_url}
+              alt="User profile"
+              sx={{ width: 32, height: 32 }}
+            />
+          </IconButton>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={() => setAnchorEl(null)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem onClick={() => setAnchorEl(null)}>
-            <ListItemIcon>
-              <SettingsIcon fontSize="small" />
-            </ListItemIcon>
-            Settings
-          </MenuItem>
-          <Divider />
-          <MenuItem onClick={handleLogout}>
-            <ListItemIcon>
-              <LogoutIcon fontSize="small" />
-            </ListItemIcon>
-            Logout
-          </MenuItem>
-        </Menu>
-      </Toolbar>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem onClick={() => setAnchorEl(null)}>
+              <ListItemIcon>
+                <SettingsIcon fontSize="small" />
+              </ListItemIcon>
+              Settings
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" />
+              </ListItemIcon>
+              Logout
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+      </Container>
     </AppBar>
   );
 };
