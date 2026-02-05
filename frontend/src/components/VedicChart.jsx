@@ -10,12 +10,14 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  TableContainer,
+  Paper
 } from "@mui/material";
 
 export default function VedicChartView({ chart }) {
   return (
     <>
-      <Card sx={{ mb: 3 }}>
+      {/* <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
             Ascendant
@@ -25,25 +27,35 @@ export default function VedicChartView({ chart }) {
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Longitude: {chart.ascendant.longitude.toFixed(2)} deg
-          </Typography>
+          </Typography>,
         </CardContent>
-      </Card>
+      </Card> */}
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+      <Box
+        sx={{
+          display: "grid",
+          gap: 3,
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "minmax(0, 4fr) minmax(0, 8fr)",
+          },
+          alignItems: "start",
+        }}
+      >
+        <Box sx={{ minWidth: 0 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Houses
               </Typography>
-              <Table size="small">
+              <Table size="small" aria-label="houses table" >
                 <TableBody>
                   {Object.entries(chart.houses).map(([house, info]) => (
                     <TableRow key={house}>
-                      <TableCell sx={{ borderBottom: "none", pl: 0 }}>
+                      <TableCell >
                         {house.replace("_", " ")}
                       </TableCell>
-                      <TableCell sx={{ borderBottom: "none", pr: 0 }}>
+                      <TableCell >
                         {info.sign}
                       </TableCell>
                     </TableRow>
@@ -52,9 +64,9 @@ export default function VedicChartView({ chart }) {
               </Table>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} md={8}>
+        <Box sx={{ minWidth: 0 }}>
           <Grid container spacing={2}>
             {Object.entries(chart.planets).map(([planet, info]) => (
               <Grid item xs={12} md={6} key={planet}>
@@ -98,8 +110,8 @@ export default function VedicChartView({ chart }) {
               </Grid>
             ))}
           </Grid>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </>
   );
 }
