@@ -391,17 +391,17 @@ export const PersonChatPage = () => {
                     <Box
                       sx={{
                         maxWidth: "85%",
-                        background: isUser ? "action.selected" : "grey.50",
+                        background: isUser ? "action.selected" : "grey.100",
                         border: "1px solid",
                         borderColor: "divider",
                         borderRadius: 2,
-                        p: 1.5,
+                        p: 3,
                       }}
                     >
-                      <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 0.5 }}>
+                      {/* <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 0.5 }}>
                         {isUser ? "You" : "Assistant"}
-                      </Typography>
-                      <Box sx={{ fontSize: 14, lineHeight: 1.5 }}>
+                      </Typography> */}
+                      <Box sx={{ fontSize: 14, lineHeight: 1.5}}>
                         <Markdown>{content}</Markdown>
                       </Box>
                     </Box>

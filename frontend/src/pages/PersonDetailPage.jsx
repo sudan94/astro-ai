@@ -66,7 +66,9 @@ export const PersonDetailPage = () => {
       const data = await personService.getById(personId);
       setPerson(data);
     } catch (e) {
-      setError(e?.response?.data?.detail || e?.message || "Failed to load person");
+      setError(
+        e?.response?.data?.detail || e?.message || "Failed to load person",
+      );
     } finally {
       setLoading(false);
     }
@@ -79,7 +81,9 @@ export const PersonDetailPage = () => {
       setAstro(data);
     } catch (e) {
       setAstro(null);
-      setError(e?.response?.data?.detail || e?.message || "Failed to load chart");
+      setError(
+        e?.response?.data?.detail || e?.message || "Failed to load chart",
+      );
     } finally {
       setAstroLoading(false);
     }
@@ -98,7 +102,9 @@ export const PersonDetailPage = () => {
       await astroService.generateVedicChart(personId);
       await loadAstro();
     } catch (e) {
-      setError(e?.response?.data?.detail || e?.message || "Failed to generate chart");
+      setError(
+        e?.response?.data?.detail || e?.message || "Failed to generate chart",
+      );
     } finally {
       setAstroLoading(false);
     }
@@ -119,7 +125,12 @@ export const PersonDetailPage = () => {
           ) : null}
 
           {loading ? (
-            <Stack direction="row" spacing={1} alignItems="center" color="text.secondary">
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              color="text.secondary"
+            >
               <CircularProgress size={18} />
               <Typography variant="body2">Loading person...</Typography>
             </Stack>
@@ -127,74 +138,6 @@ export const PersonDetailPage = () => {
             <Alert severity="warning">Person not found.</Alert>
           ) : (
             <Grid container spacing={4}>
-              <Grid item xs={12} >
-                <Card >
-                  <CardContent>
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      alignItems={{ sm: "center" }}
-                      justifyContent="space-between"
-                      spacing={2}
-                      sx={{ mb: 2 }}
-                    >
-                      <Typography variant="h5">Person</Typography>
-                      <Chip label={`#${person.id}`} size="small" />
-                    </Stack>
-
-                    <Grid container spacing={3} sx={{ mb: 2 }}>
-                      <Grid item xs={12} >
-                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                          {person.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {person.place_of_birth || "-"}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Typography variant="caption" color="text.secondary">
-                          Date of birth
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {formatDateTime(person.date_of_birth)}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Typography variant="caption" color="text.secondary">
-                          Latitude / Longitude
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {person.latitude}, {person.longitude}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Typography variant="caption" color="text.secondary">
-                          Created
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {formatDateTime(person.created_at)}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                      <Button component={Link} to="/persons" variant="outlined" size="small">
-                        Back
-                      </Button>
-                      <Button
-                        component={Link}
-                        to={`/persons/${personId}/chat`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        variant="contained"
-                        size="small"
-                      >
-                        Open Chat
-                      </Button>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-
               <Grid item xs={12}>
                 <Card>
                   <CardContent>
@@ -205,52 +148,179 @@ export const PersonDetailPage = () => {
                       spacing={2}
                       sx={{ mb: 2 }}
                     >
-                      <Typography variant="h5">Chart and AI Analysis</Typography>
+                      <Typography variant="h5">
+                        Person <Chip label={`#${person.id}`} size="small" />
+                      </Typography>
                       <Stack direction="row" spacing={1}>
                         <Button
                           variant="contained"
                           size="small"
                           onClick={onRegenerateChart}
                           disabled={astroLoading}
+                          color="success"
                         >
                           Re-generate
+                        </Button>
+                        <Button
+                          component={Link}
+                          to={`/persons/${personId}/chat`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          variant="contained"
+                          size="small"
+                        >
+                          Open Chat
                         </Button>
                       </Stack>
                     </Stack>
 
                     {astroLoading ? (
-                      <Stack direction="row" spacing={1} alignItems="center" color="text.secondary">
-                        <CircularProgress size={18} /> <Typography variant="body2">Loading chart...</Typography>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        color="text.secondary"
+                      >
+                        <CircularProgress size={18} />{" "}
+                        <Typography variant="body2">
+                          Loading chart...
+                        </Typography>
                       </Stack>
                     ) : !astro ? (
-                      <Alert severity="warning">No saved astro data found yet.</Alert>
+                      <Alert severity="warning">
+                        No saved astro data found yet.
+                      </Alert>
                     ) : (
                       <>
                         <Card sx={{ mb: 3 }}>
                           <CardContent>
-                            <Typography variant="h6" gutterBottom>
-                              Ascendant
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {chartDetails?.ascendant_sign}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              Longitude: {chartDetails?.ascendant?.longitude?.toFixed(2)} deg
-                            </Typography>
+                            <Stack
+                              direction={{ xs: "column", sm: "row" }}
+                              alignItems={{ sm: "center" }}
+                              justifyContent="space-between"
+                              spacing={2}
+                              sx={{ mb: 2 }}
+                            ></Stack>
+
+                            <Grid container spacing={3} sx={{ mb: 2 }}>
+                              <Grid item xs={12}>
+                                <Typography
+                                  variant="subtitle1"
+                                  sx={{ fontWeight: 700 }}
+                                >
+                                  {person.name}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  {person.place_of_birth || "-"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                >
+                                  Date of birth
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 600 }}
+                                >
+                                  {formatDateTime(person.date_of_birth)}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                >
+                                  Ascendant
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 600 }}
+                                >
+                                  {chartDetails?.ascendant_sign}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                >
+                                  Latitude / Longitude
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 600 }}
+                                >
+                                  {person.latitude}, {person.longitude}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                >
+                                  Created
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 600 }}
+                                >
+                                  {formatDateTime(person.created_at)}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+
+                            {/* <Stack direction="row" spacing={1} flexWrap="wrap">
+                              <Button
+                                component={Link}
+                                to="/persons"
+                                variant="outlined"
+                                size="small"
+                              >
+                                Back
+                              </Button>
+                              <Button
+                                component={Link}
+                                to={`/persons/${personId}/chat`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                variant="contained"
+                                size="small"
+                              >
+                                Open Chat
+                              </Button>
+                            </Stack> */}
                           </CardContent>
                         </Card>
 
                         <Accordion defaultExpanded>
                           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography sx={{ fontWeight: 600 }}>AI Analysis</Typography>
+                            <Typography sx={{ fontWeight: 600 }}>
+                              AI Analysis
+                            </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
                             {(() => {
-                              const analysis = normalizeMaybeJson(astro.ai_analysis);
-                              if (!analysis) return <Typography color="text.secondary">-</Typography>;
+                              const analysis = normalizeMaybeJson(
+                                astro.ai_analysis,
+                              );
+                              if (!analysis)
+                                return (
+                                  <Typography color="text.secondary">
+                                    -
+                                  </Typography>
+                                );
                               if (typeof analysis === "string") {
                                 return (
-                                  <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap" }}>
+                                  <Box
+                                    component="pre"
+                                    sx={{ m: 0, whiteSpace: "pre-wrap" }}
+                                  >
                                     {analysis}
                                   </Box>
                                 );
@@ -259,13 +329,19 @@ export const PersonDetailPage = () => {
                               const summary = analysis?.summary;
                               const renderList = (title, items) => (
                                 <Box sx={{ mb: 2 }}>
-                                  <Typography sx={{ fontWeight: 700, mb: 0.5 }}>{title}</Typography>
+                                  <Typography sx={{ fontWeight: 700, mb: 0.5 }}>
+                                    {title}
+                                  </Typography>
                                   {(items || []).length === 0 ? (
-                                    <Typography color="text.secondary">-</Typography>
+                                    <Typography color="text.secondary">
+                                      -
+                                    </Typography>
                                   ) : (
                                     <Box component="ul" sx={{ m: 0, pl: 2 }}>
                                       {items.map((it, idx) => (
-                                        <li key={`${title}-${idx}`}>{String(it)}</li>
+                                        <li key={`${title}-${idx}`}>
+                                          {String(it)}
+                                        </li>
                                       ))}
                                     </Box>
                                   )}
@@ -273,9 +349,13 @@ export const PersonDetailPage = () => {
                               );
                               const renderObjectList = (title, items) => (
                                 <Box sx={{ mb: 2 }}>
-                                  <Typography sx={{ fontWeight: 700, mb: 0.5 }}>{title}</Typography>
+                                  <Typography sx={{ fontWeight: 700, mb: 0.5 }}>
+                                    {title}
+                                  </Typography>
                                   {(items || []).length === 0 ? (
-                                    <Typography color="text.secondary">-</Typography>
+                                    <Typography color="text.secondary">
+                                      -
+                                    </Typography>
                                   ) : (
                                     <Box component="ul" sx={{ m: 0, pl: 2 }}>
                                       {items.map((it, idx) => (
@@ -284,7 +364,10 @@ export const PersonDetailPage = () => {
                                             {it.name || "-"}
                                           </Typography>
                                           {it.description ? (
-                                            <Typography variant="body2" color="text.secondary">
+                                            <Typography
+                                              variant="body2"
+                                              color="text.secondary"
+                                            >
                                               {it.description}
                                             </Typography>
                                           ) : null}
@@ -299,37 +382,71 @@ export const PersonDetailPage = () => {
                                 <>
                                   {summary ? (
                                     <Box sx={{ mb: 3 }}>
-                                      <Typography sx={{ fontWeight: 700, mb: 0.5 }}>
+                                      <Typography
+                                        sx={{ fontWeight: 700, mb: 0.5 }}
+                                      >
                                         Summary
                                       </Typography>
-                                      <Typography variant="caption" color="text.secondary">
+                                      <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                      >
                                         Core identity
                                       </Typography>
                                       <Typography sx={{ mb: 1 }}>
                                         {summary.core_identity || "-"}
                                       </Typography>
-                                      <Typography variant="caption" color="text.secondary">
+                                      <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                      >
                                         Life focus
                                       </Typography>
                                       <Typography sx={{ mb: 1 }}>
                                         {summary.life_focus || "-"}
                                       </Typography>
-                                      <Typography variant="caption" color="text.secondary">
+                                      <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                      >
                                         Overall tone
                                       </Typography>
-                                      <Typography>{summary.overall_tone || "-"}</Typography>
+                                      <Typography>
+                                        {summary.overall_tone || "-"}
+                                      </Typography>
                                     </Box>
                                   ) : null}
 
-                                  {renderList("Personality", analysis.personality)}
+                                  {renderList(
+                                    "Personality",
+                                    analysis.personality,
+                                  )}
                                   {renderList("Career", analysis.career)}
-                                  {renderList("Relationships", analysis.relationships)}
+                                  {renderList(
+                                    "Relationships",
+                                    analysis.relationships,
+                                  )}
                                   {renderList("Strengths", analysis.strengths)}
-                                  {renderList("Challenges", analysis.challenges)}
-                                  {renderList("Health tendencies", analysis.health_tendencies)}
-                                  {renderList("Spiritual path", analysis.spiritual_path)}
-                                  {renderObjectList("Key yogas", analysis.key_yogas)}
-                                  {renderObjectList("Key doshas", analysis.key_doshas)}
+                                  {renderList(
+                                    "Challenges",
+                                    analysis.challenges,
+                                  )}
+                                  {renderList(
+                                    "Health tendencies",
+                                    analysis.health_tendencies,
+                                  )}
+                                  {renderList(
+                                    "Spiritual path",
+                                    analysis.spiritual_path,
+                                  )}
+                                  {renderObjectList(
+                                    "Key yogas",
+                                    analysis.key_yogas,
+                                  )}
+                                  {renderObjectList(
+                                    "Key doshas",
+                                    analysis.key_doshas,
+                                  )}
                                 </>
                               );
                             })()}
@@ -338,16 +455,28 @@ export const PersonDetailPage = () => {
 
                         <Accordion>
                           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography sx={{ fontWeight: 600 }}>Full Vedic Chart</Typography>
+                            <Typography sx={{ fontWeight: 600 }}>
+                              Full Vedic Chart
+                            </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
                             {(() => {
-                              const chart = normalizeMaybeJson(astro.vedic_chart);
-                              if (!chart) return <Typography color="text.secondary">-</Typography>;
+                              const chart = normalizeMaybeJson(
+                                astro.vedic_chart,
+                              );
+                              if (!chart)
+                                return (
+                                  <Typography color="text.secondary">
+                                    -
+                                  </Typography>
+                                );
 
                               if (typeof chart === "string") {
                                 return (
-                                  <Box component="pre" sx={{ m: 0, whiteSpace: "pre-wrap" }}>
+                                  <Box
+                                    component="pre"
+                                    sx={{ m: 0, whiteSpace: "pre-wrap" }}
+                                  >
                                     {chart}
                                   </Box>
                                 );
