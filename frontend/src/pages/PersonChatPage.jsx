@@ -391,7 +391,7 @@ export const PersonChatPage = () => {
                     <Box
                       sx={{
                         maxWidth: "85%",
-                        background: isUser ? "action.selected" : "grey.100",
+                        background: isUser ? "#f2fbfc" : "grey.100",
                         border: "1px solid",
                         borderColor: "divider",
                         borderRadius: 2,
