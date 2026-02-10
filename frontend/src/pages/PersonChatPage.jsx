@@ -10,6 +10,12 @@ import {
   Typography,
   ButtonBase,
   IconButton,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Drawer,
   useMediaQuery,
   useTheme,
@@ -19,6 +25,7 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import SendIcon from "@mui/icons-material/Send";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { chatService } from "../services/chatService";
 import { personService } from "../services/personService";
 
@@ -102,6 +109,10 @@ export const PersonChatPage = () => {
   const [sending, setSending] = useState(false);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sessionMenuAnchor, setSessionMenuAnchor] = useState(null);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const bottomRef = useRef(null);
 
@@ -191,6 +202,40 @@ export const PersonChatPage = () => {
     }
   };
 
+  const onRenameSession = async () => {
+    if (!activeSessionId) return;
+    const nextTitle = renameValue.trim();
+    if (!nextTitle) return;
+
+    setError("");
+    try {
+      const updated = await chatService.updateSessionTitle(activeSessionId, nextTitle);
+      setSessions((prev) =>
+        (prev || []).map((s) => (s.id === activeSessionId ? updated : s)),
+      );
+      setRenameOpen(false);
+    } catch (e) {
+      setError(e?.response?.data?.detail || e?.message || "Failed to rename session");
+    }
+  };
+
+  const onDeleteSession = async () => {
+    if (!activeSessionId) return;
+    setError("");
+    try {
+      await chatService.deleteSession(activeSessionId);
+      setSessions((prev) => {
+        const remaining = (prev || []).filter((s) => s.id !== activeSessionId);
+        setActiveSessionId(remaining.length > 0 ? remaining[0].id : null);
+        return remaining;
+      });
+      setMessages([]);
+      setDeleteOpen(false);
+    } catch (e) {
+      setError(e?.response?.data?.detail || e?.message || "Failed to delete session");
+    }
+  };
+
   const onSend = async () => {
     if (!activeSessionId) return;
     const text = input.trim();
@@ -227,6 +272,14 @@ export const PersonChatPage = () => {
     } else {
       setSidebarOpen((prev) => !prev);
     }
+  };
+
+  const handleSessionMenuOpen = (event) => {
+    setSessionMenuAnchor(event.currentTarget);
+  };
+
+  const handleSessionMenuClose = () => {
+    setSessionMenuAnchor(null);
   };
 
   const sidebarContent = (
@@ -353,14 +406,52 @@ export const PersonChatPage = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Typography sx={{ fontWeight: 700 }}>
-              {activeSession ? `${activeSession.title}` : "No session selected"}
-              {messagesLoading ? (
-                <Box component="span" sx={{ ml: 1 }}>
-                  <CircularProgress size={12} />
-                </Box>
-              ) : null}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
+              <Typography sx={{ fontWeight: 700 }}>
+                {activeSession ? `${activeSession.title}` : "No session selected"}
+                {messagesLoading ? (
+                  <Box component="span" sx={{ ml: 1 }}>
+                    <CircularProgress size={12} />
+                  </Box>
+                ) : null}
+              </Typography>
+            </Box>
+            <IconButton
+              aria-label="Session options"
+              size="small"
+              onClick={handleSessionMenuOpen}
+              disabled={!activeSession}
+              sx = {{ mr: 2, fontSize: 20, color: "text.primary" }}
+            >
+              <MoreHorizIcon  />
+            </IconButton>
+            <Menu
+              anchorEl={sessionMenuAnchor}
+              open={Boolean(sessionMenuAnchor)}
+              onClose={handleSessionMenuClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              sx = {{ size: "large" }}
+            >
+              <MenuItem
+                onClick={() => {
+                  setRenameValue(activeSession?.title || "");
+                  setRenameOpen(true);
+                  handleSessionMenuClose();
+                }}
+              >
+                Rename
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setDeleteOpen(true);
+                  handleSessionMenuClose();
+                }}
+                sx={{ color: "error.main" }}
+              >
+                Delete
+              </MenuItem>
+            </Menu>
           </Box>
         </Box>
 
@@ -457,6 +548,45 @@ export const PersonChatPage = () => {
             </Box>
           </Box>
         </Box>
+
+        <Dialog open={renameOpen} onClose={() => setRenameOpen(false)} fullWidth maxWidth="xs">
+          <DialogTitle>Rename chat</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Title"
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button variant="outlined" onClick={() => setRenameOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={onRenameSession} disabled={!renameValue.trim()}>
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)} fullWidth maxWidth="xs">
+          <DialogTitle>Delete chat</DialogTitle>
+          <DialogContent>
+            <Typography sx={{ fontSize: 14 }}>
+              This will delete the chat session and its history. Continue?
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button variant="outlined" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="contained" color="error" onClick={onDeleteSession}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );

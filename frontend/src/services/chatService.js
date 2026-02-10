@@ -24,5 +24,16 @@ export const chatService = {
     });
     return response.data;
   },
-};
 
+  updateSessionTitle: async (sessionId, title) => {
+    const response = await apiClient.put(API_ENDPOINTS.CHAT.UPDATE_SESSION(sessionId), {
+      title,
+    });
+    return response.data;
+  },
+
+  deleteSession: async (sessionId) => {
+    const response = await apiClient.delete(API_ENDPOINTS.CHAT.DELETE_SESSION(sessionId));
+    return response.data;
+  },
+};

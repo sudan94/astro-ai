@@ -253,3 +253,33 @@ async def create_chat_title(db: Session, session_id: int, message: str) -> ChatS
 
     return chat_session
 
+
+async def update_chat_session_title(db: Session, session_id: int, title: str) -> ChatSession:
+    """Update chat session title."""
+    chat_session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+    if not chat_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Chat session not found"
+        )
+
+    chat_session.title = title.strip()
+    db.commit()
+    db.refresh(chat_session)
+
+    return chat_session
+
+
+async def delete_chat_session(db: Session, session_id: int) -> None:
+    """Delete a chat session and its history."""
+    chat_session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+    if not chat_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Chat session not found"
+        )
+
+    db.query(Chat).filter(Chat.session_id == session_id).delete()
+    db.delete(chat_session)
+    db.commit()
+

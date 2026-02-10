@@ -15,6 +15,9 @@ class ChatSessionResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class ChatSessionUpdate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+
 class ChatMessageCreate(BaseModel):
     session_id: int
     message: str

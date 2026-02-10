@@ -24,6 +24,8 @@ export const API_ENDPOINTS = {
     PERSON_SESSIONS: (personId) => `/chat/person/${personId}/sessions`,
     HISTORY: (sessionId) => `/chat/session/${sessionId}/history`,
     SEND_MESSAGE: '/chat/message',
+    UPDATE_SESSION: (sessionId) => `/chat/session/${sessionId}`,
+    DELETE_SESSION: (sessionId) => `/chat/session/${sessionId}`,
   },
   ASTRO: {
     GET_SAVED: (personId) => `/astro/person/${personId}`,

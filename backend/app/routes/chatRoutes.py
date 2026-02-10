@@ -28,6 +28,42 @@ async def create_chat_session(
     return await chatController.chat_session(db, chat)
 
 
+@router.put(
+    "/session/{session_id}",
+    response_model=chatShema.ChatSessionResponse,
+)
+async def update_chat_session_title(
+    session_id: int,
+    payload: chatShema.ChatSessionUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    person = personController.get_person_by_session(db, session_id, current_user)
+    if not person:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"
+        )
+    return await chatController.update_chat_session_title(db, session_id, payload.title)
+
+
+@router.delete(
+    "/session/{session_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_chat_session(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    person = personController.get_person_by_session(db, session_id, current_user)
+    if not person:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"
+        )
+    await chatController.delete_chat_session(db, session_id)
+    return None
+
+
 @router.get(
     "/person/{person_id}/sessions", response_model=list[chatShema.ChatSessionResponse]
 )
