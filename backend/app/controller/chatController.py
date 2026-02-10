@@ -1,9 +1,11 @@
+import os
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from app.models.ChatSession import ChatSession
 from app.models.Chat import Chat, senderEnum
 from app.models.Astro import Astro
+from app.models.Person import Person
 from app.schemas import chatShema
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
@@ -74,6 +76,7 @@ async def llm_chat(db: Session, chat: chatShema.ChatMessageCreate) -> Dict:
 
         # Get astrological data for the person
         astro_data = db.query(Astro).filter(Astro.person_id == person_id).first()
+        person_data = db.query(Person).filter(Person.id == person_id).first()
 
         if not astro_data:
             raise HTTPException(
@@ -97,7 +100,7 @@ async def llm_chat(db: Session, chat: chatShema.ChatMessageCreate) -> Dict:
         db.commit()
 
         # Prepare astrological context
-        astro_context = prepare_astro_context(astro_data)
+        astro_context = prepare_astro_context(astro_data, person_data)
 
         # Generate AI response
         ai_response = await generate_chat_response(
@@ -132,9 +135,18 @@ async def llm_chat(db: Session, chat: chatShema.ChatMessageCreate) -> Dict:
         )
 
 
-def prepare_astro_context(astro_data: Astro) -> str:
-    """Prepare astrological context string from Astro model"""
+def prepare_astro_context(astro_data: Astro, person_data: Person) -> str:
+    """Prepare astrological context string from Astro and Person models"""
     context_parts = []
+
+    if person_data.name:
+        context_parts.append(f"Name: {person_data.name}")
+    if person_data.date_of_birth:
+        context_parts.append(f"Date of Birth: {person_data.date_of_birth.isoformat()}")
+    if person_data.place_of_birth:
+        context_parts.append(f"Place of Birth: {person_data.place_of_birth}")
+    if person_data.latitude and person_data.longitude:
+        context_parts.append(f"Birth Coordinates: ({person_data.latitude}, {person_data.longitude})")
 
     if astro_data.ascendent_sign:
         context_parts.append(f"Ascendant Sign: {astro_data.ascendent_sign}")
@@ -177,7 +189,7 @@ async def generate_chat_response(
     """Generate AI response using LLM with astrological context"""
 
     llm = ChatOpenAI(
-        model="gpt-4.1-mini",
+        model=os.getenv("OPENAPI_MODEL", "gpt-5-chat-latest"),
         temperature=0.7,
     )
 
@@ -221,7 +233,7 @@ Guidelines:
 async def create_chat_title(db: Session, session_id: int, message: str) -> ChatSession:
     """Update the title of a chat session"""
     llm = ChatOpenAI(
-        model="gpt-4.1-mini",
+        model=os.getenv("OPENAPI_MODEL", "gpt-5-chat-latest"),
         temperature=0.7,
     )
     title_prompt = f"Generate a concise and relevant title for the following chat session message:\n\n{message}\n\nTitle:"
@@ -240,4 +252,34 @@ async def create_chat_title(db: Session, session_id: int, message: str) -> ChatS
     db.refresh(chat_session)
 
     return chat_session
+
+
+async def update_chat_session_title(db: Session, session_id: int, title: str) -> ChatSession:
+    """Update chat session title."""
+    chat_session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+    if not chat_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Chat session not found"
+        )
+
+    chat_session.title = title.strip()
+    db.commit()
+    db.refresh(chat_session)
+
+    return chat_session
+
+
+async def delete_chat_session(db: Session, session_id: int) -> None:
+    """Delete a chat session and its history."""
+    chat_session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+    if not chat_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Chat session not found"
+        )
+
+    db.query(Chat).filter(Chat.session_id == session_id).delete()
+    db.delete(chat_session)
+    db.commit()
 

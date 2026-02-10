@@ -8,6 +8,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 import json
 from app.utilities.prompts import SYSTEM_PROMPT
+import os
 
 
 async def get_vedic_chart(db: Session, person_id: int) -> Dict:
@@ -111,7 +112,7 @@ def get_chart_summary(chart_data: Dict) -> str:
 
 async def run_chart_analysis(chart_data: dict) -> dict:
     llm = ChatOpenAI(
-    model="gpt-4.1-mini",
+    model=os.getenv("OPENAPI_MODEL", "gpt-5-chat-latest"),
     temperature=0,
     response_format={"type": "json_object"}
     )
@@ -140,8 +141,8 @@ Ensure all fields are present.
   "challenges": [],
   "health_tendencies": [],
   "spiritual_path": [],
-  "key_yogas": [],
-  "key_doshas": []
+  "key_yogas": [{{'name' : '', 'description': ''}}],
+  "key_doshas": [{{'name' : '', 'description': ''}}]
 }}
 """
     messages = [
