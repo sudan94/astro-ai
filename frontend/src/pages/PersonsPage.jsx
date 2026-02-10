@@ -14,26 +14,20 @@ import {
   ListItemButton,
   Paper,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
-  Modal,
-  Link,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 import { AppNavbar } from "../components/AppNavbar";
 import { personService } from "../services/personService";
 import { locationService } from "../services/locationService";
 import { useAuth } from "../hooks/useAuth";
+import { PersonTable } from "../components/PersonTable";
 
 function toDateTimeWithSeconds(value) {
   if (!value) return value;
@@ -50,20 +44,7 @@ export const PersonsPage = () => {
   const [editModal, setEditModal] = useState(false);
   const [personId, setPersonId] = useState(null);
 
-  function fillEditModal(person) {
-    setEditModal(true);
-    setPersonId(person ? person.id : null);
-    setForm({
-      name: person.name || "",
-      date_of_birth: person.date_of_birth
-        ? person.date_of_birth.substring(0, 16)
-        : "",
-      place_of_birth: person.place_of_birth || "",
-      latitude: person.latitude !== null ? String(person.latitude) : "",
-      longitude: person.longitude !== null ? String(person.longitude) : "",
-    });
-     setCityQuery(person.place_of_birth);
-  }
+
 
   function resetForm() {
     setForm({
@@ -78,18 +59,6 @@ export const PersonsPage = () => {
     setShowCityResults(false);
     setError("");
   }
-
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -192,10 +161,7 @@ export const PersonsPage = () => {
         longitude: Number(form.longitude),
       };
       if (editModal) {
-        await personService.update(
-          personId,
-          payload,
-        );
+        await personService.update(personId, payload);
         loadPersons();
         handleClose();
         resetForm();
@@ -212,10 +178,26 @@ export const PersonsPage = () => {
     }
   };
 
-  // delte modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [personToDelete, setPersonToDelete] = useState(null);
-  const setDeleteModal = (person) => {
+
+  const handleEdit = (person) => {
+    setEditModal(true);
+    setPersonId(person ? person.id : null);
+    setForm({
+      name: person.name || "",
+      date_of_birth: person.date_of_birth
+        ? person.date_of_birth.substring(0, 16)
+        : "",
+      place_of_birth: person.place_of_birth || "",
+      latitude: person.latitude !== null ? String(person.latitude) : "",
+      longitude: person.longitude !== null ? String(person.longitude) : "",
+    });
+    setCityQuery(person.place_of_birth || "");
+    handleOpen();
+  };
+
+  const handleDeletePrompt = (person) => {
     setPersonToDelete(person);
     setDeleteModalOpen(true);
   };
@@ -267,15 +249,6 @@ export const PersonsPage = () => {
                     >
                       Add Person
                     </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<RefreshIcon />}
-                      onClick={loadPersons}
-                      disabled={loading}
-                    >
-                      Refresh
-                    </Button>
                   </Stack>
                 </Stack>
 
@@ -295,103 +268,36 @@ export const PersonsPage = () => {
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ mb: 1 }}
+                      component={"span"}
+                      sx={{ mb: 1, display: "block" }}
                     >
                       Total: <Chip size="small" label={persons.length} />
                     </Typography>
-                    <TableContainer component={Paper} variant="outlined">
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell sx={{ width: 80 }}>ID</TableCell>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Birth place</TableCell>
-                            <TableCell sx={{ width: 140 }}>Action</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {persons.length === 0 ? (
-                            <TableRow>
-                              <TableCell
-                                colSpan={4}
-                                sx={{ color: "text.secondary" }}
-                              >
-                                No persons yet. Create one on the left.
-                              </TableCell>
-                            </TableRow>
-                          ) : (
-                            persons.map((p) => (
-                              <TableRow key={p.id}>
-                                <TableCell>{p.id}</TableCell>
-                                <TableCell sx={{ fontWeight: 600 }}>
-                                  <Link
-                                    component="button"
-                                    variant="body2"
-                                    onClick={() => {
-                                      navigate(`/persons/${p.id}`);
-                                    }}
-                                  >
-                                    {p.name}
-                                  </Link>
-                                </TableCell>
-                                <TableCell sx={{ color: "text.secondary" }}>
-                                  {p.place_of_birth || "-"}
-                                </TableCell>
-                                <TableCell>
-                                  <Stack direction="row" spacing={1}>
-                                    <Button
-                                      size="small"
-                                      color="success"
-                                      onClick={() => {
-                                        fillEditModal(p);
-                                        handleOpen();
-                                      }}
-                                    >
-                                      <EditIcon
-                                        fontSize="small"
-                                        sx={{ mr: 0.5 }}
-                                      />
-                                    </Button>
-                                    <Button
-                                      size="small"
-                                      color="error"
-                                      onClick={() => setDeleteModal(p)}
-                                    >
-                                      <DeleteIcon
-                                        fontSize="small"
-                                        sx={{ mr: 0.5 }}
-                                      />
-                                    </Button>
-                                  </Stack>
-                                </TableCell>
-                              </TableRow>
-                            ))
-                          )}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
+                    {/* table goes here */}
+                    <PersonTable
+                      persons={persons}
+                      onOpenPerson={(p) => navigate(`/persons/${p.id}`)}
+                      onEdit={handleEdit}
+                      onDelete={handleDeletePrompt}
+                    />
                   </>
                 )}
               </CardContent>
             </Card>
           </Box>
         </Container>
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-        >
-          <Box sx={style}>
-            <Typography variant="h5" sx={{ mb: 2 }} id="modal-modal-title">
-              {editModal ? "Edit Person" : "Add Person"}
-            </Typography>
+        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+          <DialogTitle>
+            {editModal ? "Edit Person" : "Add Person"}
+          </DialogTitle>
+          <DialogContent>
             {error ? (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {error}
               </Alert>
             ) : null}
 
-            <Box component="form" onSubmit={onSubmit}>
+            <Box component="form" id="person-form" onSubmit={onSubmit}>
               <Stack spacing={2}>
                 <TextField
                   label="Name"
@@ -534,63 +440,62 @@ export const PersonsPage = () => {
                     />
                   </Grid>
                 </Grid>
-
-                <Stack direction="row" spacing={2}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={!canSubmit || saving}
-                  >
-                    {saving ? "Creating..." : "Submit"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outlined"
-                    onClick={() => {
-                      handleClose();
-                      resetForm();
-                    }}
-                    disabled={saving}
-                  >
-                    Cancel
-                  </Button>
-                </Stack>
               </Stack>
             </Box>
-          </Box>
-        </Modal>
-        <Modal
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={() => {
+                handleClose();
+                resetForm();
+              }}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={!canSubmit || saving}
+              form="person-form"
+            >
+              {saving ? (editModal ? "Saving..." : "Creating...") : "Submit"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
           open={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
-          aria-labelledby="modal-modal-title"
+          fullWidth
+          maxWidth="xs"
         >
-          <Box sx={style}>
-            <Typography variant="h6" sx={{ mb: 2 }} id="modal-modal-title">
-              Confirm Deletion
-            </Typography>
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogContent>
             <Typography variant="body2" sx={{ mb: 2 }}>
               Are you sure you want to delete this person?
             </Typography>
-            <Stack direction="row" spacing={2}>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => {
-                  handleDelete(personToDelete);
-                  setDeleteModalOpen(false);
-                }}
-              >
-                Delete
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => setDeleteModalOpen(false)}
-              >
-                Cancel
-              </Button>
-            </Stack>
-          </Box>
-        </Modal>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button
+              variant="outlined"
+              onClick={() => setDeleteModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => {
+                handleDelete(personToDelete);
+                setDeleteModalOpen(false);
+              }}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </>
   );
