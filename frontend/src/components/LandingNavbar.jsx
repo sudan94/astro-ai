@@ -13,15 +13,15 @@ export const LandingNavbar = () => {
           >
             Vedic Astro AI
           </Typography>
-          <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
+          {/* <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
             <Button color="inherit" href="#features">
               Features
             </Button>
             <Button color="inherit" href="#pricing">
               Pricing
             </Button>
-          </Box>
-          <Button color="inherit" href="/login">
+          </Box> */}
+          <Button color="inherit" href="/login" sx={{ marginLeft: "auto" }}>
             Login
           </Button>
         </Toolbar>

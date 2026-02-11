@@ -13,7 +13,7 @@ export const LandingPage = () => {
     <>
       <LandingNavbar />
 
-      <Box sx={{ backgroundColor: "grey.100", py: 6 }}>
+      <Box sx={{ backgroundColor: "grey.100", py: 7 }}>
         <Container maxWidth="lg">
           <Grid container justifyContent="center" textAlign="center">
             <Grid item xs={12} md={8}>
@@ -29,7 +29,7 @@ export const LandingPage = () => {
         </Container>
       </Box>
 
-      <Box sx={{ py: 6 }} id="features">
+      <Box sx={{ py: 7 }} id="features">
         <Container maxWidth="lg">
           <Grid container justifyContent="center" sx={{ mb: 4 }}>
             <Grid item xs={12} md={8}>
@@ -99,7 +99,7 @@ export const LandingPage = () => {
         </Container>
       </Box>
 
-      <Box sx={{ backgroundColor: "grey.100", py: 6 }} id="pricing">
+      {/* <Box sx={{ backgroundColor: "grey.100", py: 6 }} id="pricing">
         <Container maxWidth="lg">
           <Grid container justifyContent="center" sx={{ mb: 3 }}>
             <Grid item xs={12} md={6}>
@@ -157,9 +157,9 @@ export const LandingPage = () => {
             </Grid>
           </Grid>
         </Container>
-      </Box>
+      </Box> */}
 
-      <Box sx={{ py: 6 }}>
+      <Box sx={{ py: 6.2 }}>
         <Container maxWidth="lg">
           <Grid container justifyContent="center">
             <Grid item xs={12} md={8}>
@@ -179,7 +179,7 @@ export const LandingPage = () => {
         </Container>
       </Box>
 
-      <Box sx={{ backgroundColor: "grey.900", color: "common.white", py: 3 }}>
+      <Box sx={{ backgroundColor: "grey.600", color: "common.white", py: 3 }}>
         <Container maxWidth="lg">
           <Typography variant="caption" display="block" textAlign="center">
             (c) {new Date().getFullYear()} Sudan - Made with care - All rights reserved

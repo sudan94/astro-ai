@@ -152,7 +152,7 @@ export const AppNavbar = ({ user }) => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="" src={user.avatar_url} />
+                <Avatar alt={user.name} src={user.avatar_url} />
               </IconButton>
             </Tooltip>
             <Menu
