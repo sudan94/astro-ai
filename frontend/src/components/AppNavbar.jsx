@@ -171,7 +171,7 @@ export const AppNavbar = ({ user }) => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem >
+              <MenuItem  onClick={() => navigate("/user-profile")}>
                 <PersonIcon sx={{ mr: 1 }} />
                 <Typography sx={{ textAlign: "center" }}>Profile</Typography>
               </MenuItem>
