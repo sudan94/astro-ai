@@ -8,6 +8,7 @@ from app.routes.locationRoutes import router as location_router
 from app.routes.astroRoutes import router as astro_router
 from app.routes.authRoutes import router as auth_router
 from app.routes.chatRoutes import router as chat_router
+from app.routes.userRoutes import router as user_router
 
 load_dotenv()
 
@@ -41,6 +42,7 @@ app.include_router(person_router)
 app.include_router(location_router)
 app.include_router(astro_router)
 app.include_router(chat_router)
+app.include_router(user_router)
 
 @app.get("/")
 def root():

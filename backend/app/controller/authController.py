@@ -73,3 +73,13 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+def update_user_name(db: Session, user_id: int, new_name: str):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.name = new_name
+    user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    return user
