@@ -37,6 +37,8 @@ export const LoginPage = () => {
       console.error("Google Login Failed");
       alert("Login failed. Please try again.");
     },
+    ux_mode: "redirect",
+    redirect_uri: window.location.origin + "/login",
   });
 
   if (loading) {
