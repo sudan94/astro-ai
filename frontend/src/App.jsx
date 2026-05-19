@@ -9,6 +9,7 @@ import { PersonDetailPage } from './pages/PersonDetailPage';
 import { PersonChatPage } from './pages/PersonChatPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { LandingPage } from './pages/LandingPage';
+import { UserProfilePage } from './pages/UserProfilePage';
 import { GOOGLE_CLIENT_ID } from './config/constants';
 
 function App() {
@@ -51,6 +52,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path='/user-profile' element={
+              <ProtectedRoute>
+                <UserProfilePage />
+              </ProtectedRoute>
+            } />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

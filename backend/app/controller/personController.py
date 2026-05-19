@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, BackgroundTasks
 from app.models.Person import Person
 from app.schemas import personSchema
 from app.controller import astroController
@@ -22,7 +22,7 @@ async def create_person(db: Session, person: personSchema.PersonCreate, current_
         db.commit()
         db.refresh(db_person)
 
-        await astroController.get_vedic_chart(db, person_id=db_person.id)
+        BackgroundTasks().add_task(astroController.get_vedic_chart, db=db, person_id=db_person.id)
         return db_person
     except IntegrityError:
         db.rollback()

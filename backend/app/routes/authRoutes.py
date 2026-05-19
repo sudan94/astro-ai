@@ -6,7 +6,6 @@ import jwt
 from app.config.database import get_db
 from app.controller import authController
 from app.schemas import userSchema
-from app.models.User import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

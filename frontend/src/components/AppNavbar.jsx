@@ -152,7 +152,7 @@ export const AppNavbar = ({ user }) => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="" src={user.avatar_url} />
+                <Avatar alt={user.name} src={user.avatar_url} />
               </IconButton>
             </Tooltip>
             <Menu
@@ -171,7 +171,7 @@ export const AppNavbar = ({ user }) => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem >
+              <MenuItem  onClick={() => navigate("/user-profile")}>
                 <PersonIcon sx={{ mr: 1 }} />
                 <Typography sx={{ textAlign: "center" }}>Profile</Typography>
               </MenuItem>
