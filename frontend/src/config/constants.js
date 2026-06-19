@@ -31,4 +31,8 @@ export const API_ENDPOINTS = {
     GET_SAVED: (personId) => `/astro/person/${personId}`,
     GENERATE_VEDIC_CHART: (personId) => `/astro/vedic-chart/${personId}`,
   },
+  HOROSCOPE: {
+    WESTERN: "/horoscope/western",
+    VEDIC: "/horoscope/vedic",
+  },
 };
