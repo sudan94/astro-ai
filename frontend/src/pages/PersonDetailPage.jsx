@@ -116,7 +116,7 @@ export const PersonDetailPage = () => {
   return (
     <>
       <AppNavbar user={user} />
-      <Box sx={{ backgroundColor: "grey.100", minHeight: "100vh", py: 4 }}>
+      <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 4 }}>
         <Container maxWidth="lg" sx={{ height: "100%" }}>
           {error ? (
             <Alert severity="error" sx={{ mb: 2 }}>

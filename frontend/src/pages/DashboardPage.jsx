@@ -27,7 +27,7 @@ export const DashboardPage = () => {
 
       <Box
         sx={{
-          backgroundColor: "grey.100",
+          backgroundColor: "background.default",
           minHeight: "calc(100vh - 64px)",
           py: 4,
         }}
@@ -123,8 +123,8 @@ export const DashboardPage = () => {
                   </Button>
                 }>
                   <ListItemText
-                    primary="Manage Persons"
-                    secondary="Add people and open person detail pages"
+                    primary="Birth Charts"
+                    secondary="Create a birth chart and start an AI reading"
                     primaryTypographyProps={{ fontWeight: 600 }}
                   />
                 </ListItem>

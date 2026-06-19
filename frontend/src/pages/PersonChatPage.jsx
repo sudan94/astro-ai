@@ -108,7 +108,7 @@ export const PersonChatPage = () => {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sessionMenuAnchor, setSessionMenuAnchor] = useState(null);
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState("");
@@ -177,7 +177,7 @@ export const PersonChatPage = () => {
   }, [personId]);
 
   useEffect(() => {
-    setSidebarOpen(!isSmallScreen);
+    if (!isSmallScreen) setSidebarOpen(true);
   }, [isSmallScreen]);
 
   useEffect(() => {
@@ -324,7 +324,7 @@ export const PersonChatPage = () => {
             to={`/persons/${personId}`}
             startIcon={<PersonOutlinedIcon />}
           >
-            Person
+            Birth Chart
           </Button>
         </Box>
         {error ? (
@@ -381,7 +381,7 @@ export const PersonChatPage = () => {
   );
 
   return (
-    <Box sx={{ height: "100vh", display: "flex", background: "#ffffff" }}>
+    <Box sx={{ height: "100dvh", display: "flex", background: "background.default", overflow: "hidden" }}>
       {isSmallScreen ? (
         <Drawer
           anchor="left"
@@ -482,10 +482,10 @@ export const PersonChatPage = () => {
                     <Box
                       sx={{
                         maxWidth: "85%",
-                        background: isUser ? "#f2fbfc" : "grey.100",
+                        background: isUser ? "rgba(194, 65, 12, 0.07)" : "rgba(0,0,0,0.03)",
                         border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 2,
+                        borderColor: isUser ? "rgba(194, 65, 12, 0.2)" : "divider",
+                        borderRadius: 3,
                         p: 3,
                       }}
                     >
@@ -504,7 +504,7 @@ export const PersonChatPage = () => {
           </Box>
         </Box>
 
-        <Box sx={{ borderTop: "1px solid", borderColor: "divider", p: 2 }}>
+        <Box sx={{ borderTop: "1px solid", borderColor: "divider", p: 2, pb: "max(16px, env(safe-area-inset-bottom))" }}>
           <Box sx={{ maxWidth: 860, mx: "auto" }}>
             <Box
               component="form"

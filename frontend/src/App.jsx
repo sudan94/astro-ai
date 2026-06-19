@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
@@ -11,9 +12,12 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { LandingPage } from './pages/LandingPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { GOOGLE_CLIENT_ID } from './config/constants';
+import { theme } from './theme';
 
 function App() {
   return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <Router>
@@ -63,6 +67,7 @@ function App() {
         </Router>
       </AuthProvider>
     </GoogleOAuthProvider>
+    </ThemeProvider>
   );
 }
 

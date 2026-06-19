@@ -8,7 +8,6 @@ import {
   Container,
   Divider,
   IconButton,
-  ListItemIcon,
   Menu,
   MenuItem,
   Toolbar,
@@ -16,71 +15,77 @@ import {
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useAuth } from "../hooks/useAuth";
-import Tooltip from "@mui/material/Tooltip";
+import PersonIcon from "@mui/icons-material/Person";
 import MenuIcon from "@mui/icons-material/Menu";
-import PersonIcon from '@mui/icons-material/Person';
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import Tooltip from "@mui/material/Tooltip";
+import { useAuth } from "../hooks/useAuth";
 
-const pages = ["Dashboard", "Persons"];
-const settings = ["Profile", "Account", "Logout"];
-const settingsActions = ["handleProfile", "handleAccount", "handleLogout"];
+const pages = [
+  { label: "Home", route: "/dashboard" },
+  { label: "Birth Charts", route: "/persons" },
+];
 
 export const AppNavbar = ({ user }) => {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleOpenNavMenu = (e) => setAnchorElNav(e.currentTarget);
+  const handleCloseNavMenu = () => setAnchorElNav(null);
+  const handleOpenUserMenu = (e) => setAnchorElUser(e.currentTarget);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
 
   const handleLogout = async () => {
-    setAnchorEl(null);
+    handleCloseUserMenu();
     await logout();
     navigate("/login");
   };
+
+  const brandTitle = (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+      <AutoAwesomeIcon sx={{ fontSize: 18, color: "#FFD700", opacity: 0.9 }} />
+      <Typography
+        component="span"
+        sx={{
+          fontWeight: 800,
+          letterSpacing: "0.06em",
+          fontSize: "inherit",
+          color: "#FFFFFF",
+          fontFamily: "Georgia, serif",
+        }}
+      >
+        Vedic Astro AI
+      </Typography>
+    </Box>
+  );
 
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          {/* <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+          {/* Desktop brand */}
+          <Box
+            component={Link}
+            to="/dashboard"
             sx={{
-              mr: 2,
+              mr: 3,
               display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".1rem",
-              color: "inherit",
+              alignItems: "center",
               textDecoration: "none",
+              fontSize: "1.1rem",
             }}
           >
-            Vedic Astro AI
-          </Typography>
+            {brandTitle}
+          </Box>
 
+          {/* Mobile hamburger */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
+              aria-label="navigation menu"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
@@ -91,97 +96,101 @@ export const AppNavbar = ({ user }) => {
             <Menu
               id="menu-appbar"
               anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography
-                    sx={{ textAlign: "center" }}
-                    component={Link}
-                    to={`/${page.toLowerCase()}`}
-                  >
-                    {page}
-                  </Typography>
+              {pages.map((p) => (
+                <MenuItem
+                  key={p.route}
+                  component={Link}
+                  to={p.route}
+                  onClick={handleCloseNavMenu}
+                >
+                  <Typography sx={{ fontWeight: 600 }}>{p.label}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
-          {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+
+          {/* Mobile brand */}
+          <Box
+            component={Link}
+            to="/dashboard"
             sx={{
-              mr: 2,
               display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".1rem",
-              color: "inherit",
+              alignItems: "center",
               textDecoration: "none",
+              fontSize: "1rem",
             }}
           >
-            Vedic Astro AI
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
+            {brandTitle}
+          </Box>
+
+          {/* Desktop nav links */}
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, gap: 0.5 }}>
+            {pages.map((p) => (
               <Button
-                key={page}
+                key={p.route}
                 component={Link}
-                to={`/${page.toLowerCase()}`}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
+                to={p.route}
+                sx={{
+                  color: "rgba(255,255,255,0.92)",
+                  fontWeight: 600,
+                  letterSpacing: "0.02em",
+                  px: 2,
+                  "&:hover": {
+                    color: "#FFD700",
+                    background: "rgba(255,255,255,0.1)",
+                  },
+                }}
               >
-                {page}
+                {p.label}
               </Button>
             ))}
           </Box>
+
+          {/* User avatar menu */}
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Account">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={user.name} src={user.avatar_url} />
+                <Avatar
+                  alt={user?.name}
+                  src={user?.avatar_url}
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    border: "2px solid rgba(255,215,0,0.6)",
+                  }}
+                />
               </IconButton>
             </Tooltip>
             <Menu
               sx={{ mt: "45px" }}
-              id="menu-appbar"
+              id="user-menu"
               anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
               keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem  onClick={() => navigate("/user-profile")}>
-                <PersonIcon sx={{ mr: 1 }} />
-                <Typography sx={{ textAlign: "center" }}>Profile</Typography>
+              <MenuItem onClick={() => { navigate("/user-profile"); handleCloseUserMenu(); }}>
+                <PersonIcon sx={{ mr: 1.5, fontSize: 20, color: "primary.main" }} />
+                <Typography>Profile</Typography>
               </MenuItem>
-              <MenuItem >
-                <SettingsIcon sx={{ mr: 1 }} />
-                <Typography sx={{ textAlign: "center" }}>Settings</Typography>
+              <MenuItem onClick={handleCloseUserMenu}>
+                <SettingsIcon sx={{ mr: 1.5, fontSize: 20, color: "text.secondary" }} />
+                <Typography>Settings</Typography>
               </MenuItem>
+              <Divider />
               <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ mr: 1 }} />
-                <Typography sx={{ textAlign: "center" }}>Sign out</Typography>
+                <LogoutIcon sx={{ mr: 1.5, fontSize: 20, color: "error.main" }} />
+                <Typography color="error.main">Sign out</Typography>
               </MenuItem>
             </Menu>
           </Box>
@@ -190,4 +199,5 @@ export const AppNavbar = ({ user }) => {
     </AppBar>
   );
 };
+
 export default AppNavbar;

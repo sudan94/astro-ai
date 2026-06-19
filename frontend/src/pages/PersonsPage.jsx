@@ -219,7 +219,7 @@ export const PersonsPage = () => {
       <AppNavbar user={user} />
       <Box
         sx={{
-          backgroundColor: "grey.100",
+          backgroundColor: "background.default",
           minHeight: "calc(100vh - 64px)",
           py: 4,
         }}
@@ -235,11 +235,11 @@ export const PersonsPage = () => {
                   justifyContent="space-between"
                   sx={{ mb: 2 }}
                 >
-                  <Typography variant="h5">Persons</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>Birth Charts</Typography>
                   <Stack direction="row" spacing={1}>
                     <Button
                       size="small"
-                      variant="outlined"
+                      variant="contained"
                       startIcon={<PersonAddAltOutlinedIcon />}
                       onClick={() => {
                         handleOpen();
@@ -247,7 +247,7 @@ export const PersonsPage = () => {
                         setEditModal(false);
                       }}
                     >
-                      Add Person
+                      New Birth Chart
                     </Button>
                   </Stack>
                 </Stack>

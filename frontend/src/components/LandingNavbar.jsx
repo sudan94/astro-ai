@@ -1,18 +1,24 @@
 import { AppBar, Box, Button, Container, Toolbar, Typography } from "@mui/material";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
 export const LandingNavbar = () => {
   return (
-    <AppBar position="static" color="primary" elevation={1}>
+    <AppBar position="static" elevation={1}>
       <Container>
         <Toolbar sx={{ gap: 2 }}>
-          <Typography
+          <Box
             component="a"
             href="#home"
-            variant="h6"
-            sx={{ color: "common.white", textDecoration: "none", fontWeight: 700 }}
+            sx={{ display: "flex", alignItems: "center", gap: 0.75, textDecoration: "none" }}
           >
-            Vedic Astro AI
-          </Typography>
+            <AutoAwesomeIcon sx={{ fontSize: 18, color: "#FFD700", opacity: 0.9 }} />
+            <Typography
+              variant="h6"
+              sx={{ color: "common.white", fontWeight: 800, letterSpacing: "0.06em", fontFamily: "Georgia, serif" }}
+            >
+              Vedic Astro AI
+            </Typography>
+          </Box>
           {/* <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
             <Button color="inherit" href="#features">
               Features

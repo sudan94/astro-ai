@@ -59,7 +59,7 @@ export const UserProfilePage = () => {
         id="user-form"
         onSubmit={onSubmit}
         sx={{
-          backgroundColor: "grey.100",
+          backgroundColor: "background.default",
           minHeight: "calc(100vh - 64px)",
           py: 4,
         }}
