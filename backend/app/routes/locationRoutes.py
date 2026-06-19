@@ -18,7 +18,7 @@ def search_cities(q: str = Query(..., min_length=1)):
             "lng": float(city["lng"])
         }
         for city in cities
-        if city["city"].lower().startswith(q)
+        if city["city_ascii"].lower().startswith(q) or city["city"].lower().startswith(q)
     ]
 
     return results[:10]
