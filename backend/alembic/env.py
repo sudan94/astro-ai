@@ -4,6 +4,7 @@ import os
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from app.config.database import Base
+from app.config.settings import settings
 from app.models import User, Person, ChatSession, Chat, Astro  # Import all models to ensure they are registered with Base
 
 from alembic import context
@@ -17,7 +18,9 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-database_url = os.environ.get("DATABASE_URL")
+# Use DATABASE_URL env var if set directly, otherwise fall back to the
+# URL assembled from individual POSTGRES_* vars in settings.
+database_url = os.environ.get("DATABASE_URL") or settings.DATABASE_URL
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url)
 

@@ -82,6 +82,10 @@ def get_current_user(
         if not user or not user.is_active:
             raise HTTPException(status_code=401, detail="Unauthorized")
 
+        user.last_active_at = datetime.utcnow()
+        db.commit()
+        db.refresh(user)
+
         return user
 
     except jwt.ExpiredSignatureError:

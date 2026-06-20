@@ -28,3 +28,4 @@ class User(Base):
         DateTime(timezone=True),
         onupdate=func.now()
     )
+    last_active_at = Column(DateTime(timezone=True), nullable=True)

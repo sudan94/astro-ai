@@ -11,6 +11,7 @@ from app.routes.chatRoutes import router as chat_router
 from app.routes.userRoutes import router as user_router
 from app.routes.horoscopeRoutes import router as horoscope_router
 from app.routes.matchRoutes import router as match_router
+from app.routes.adminRoutes import router as admin_router
 
 load_dotenv()
 
@@ -47,6 +48,7 @@ app.include_router(chat_router)
 app.include_router(user_router)
 app.include_router(horoscope_router)
 app.include_router(match_router)
+app.include_router(admin_router)
 
 @app.get("/")
 def root():

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -12,8 +13,18 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { LandingPage } from './pages/LandingPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { MatchPage } from './pages/MatchPage';
+import { AdminPage } from './pages/AdminPage';
 import { GOOGLE_CLIENT_ID } from './config/constants';
 import { theme } from './theme';
+
+const ADMIN_EMAIL = 'sudanupadhaya@gmail.com';
+
+function AdminRoute({ children }) {
+  const { user, isAuthenticated, loading } = useAuth();
+  if (loading) return null;
+  if (!isAuthenticated || user?.email !== ADMIN_EMAIL) return <Navigate to="/dashboard" replace />;
+  return children;
+}
 
 function App() {
   return (
@@ -66,6 +77,11 @@ function App() {
               <ProtectedRoute>
                 <MatchPage />
               </ProtectedRoute>
+            } />
+            <Route path='/admin' element={
+              <AdminRoute>
+                <AdminPage />
+              </AdminRoute>
             } />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFoundPage />} />
