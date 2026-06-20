@@ -18,6 +18,8 @@ export const LoginPage = () => {
   const { login, isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
+    // Don't redirect while an OAuth callback is being processed from the URL hash
+    if (window.location.hash.includes('access_token')) return;
     if (isAuthenticated && !loading) {
       navigate("/dashboard");
     }
@@ -37,6 +39,8 @@ export const LoginPage = () => {
       console.error("Google Login Failed");
       alert("Login failed. Please try again.");
     },
+    ux_mode: "redirect",
+    redirect_uri: window.location.origin + "/login",
   });
 
   if (loading) {
