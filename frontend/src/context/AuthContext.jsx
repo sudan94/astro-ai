@@ -72,14 +72,10 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(response.data.user));
     } catch (error) {
       console.error('Token verification failed:', error);
-      const status = error?.response?.status;
-      // Only clear session if server says token is invalid/expired
-      if (status === 401 || status === 403) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-        setIsAuthenticated(false);
-      }
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      setIsAuthenticated(false);
     } finally {
       setLoading(false);
     }
