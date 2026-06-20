@@ -24,6 +24,7 @@ import { useAuth } from "../hooks/useAuth";
 const pages = [
   { label: "Home", route: "/dashboard" },
   { label: "Birth Charts", route: "/persons" },
+  { label: "Kundali Match", route: "/match" },
 ];
 
 export const AppNavbar = ({ user }) => {
