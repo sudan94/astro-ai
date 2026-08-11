@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+import logging
 import os
 from app.config.database import engine, Base
 from app.routes.personRoutes import router as person_router
@@ -14,6 +15,14 @@ from app.routes.matchRoutes import router as match_router
 from app.routes.adminRoutes import router as admin_router
 
 load_dotenv()
+
+# Uvicorn configures only its own loggers, so application loggers stay at the
+# root default of WARNING. Set them explicitly, otherwise the per-call LLM
+# metrics emitted by `app.utilities.llm` are silently dropped.
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO"),
+    format="%(asctime)s %(levelname)-8s %(name)s %(message)s",
+)
 
 # Create tables
 Base.metadata.create_all(bind=engine)
