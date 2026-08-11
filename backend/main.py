@@ -62,9 +62,3 @@ def root():
     else:
         return {"message": "Astrology API is running."}
 
-@app.get("/cleanup")
-def cleanup():
-    """Cleanup resources on shutdown."""
-    Base.metadata.drop_all(bind=engine)
-    pass
-

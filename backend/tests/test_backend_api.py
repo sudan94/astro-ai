@@ -225,9 +225,10 @@ def test_create_person_returns_created_person(authenticated_client, current_user
         updated_at=None,
     )
 
-    async def _fake_create_person(db, person, user):
+    async def _fake_create_person(db, person, user, background_tasks):
         assert user.id == current_user.id
         assert person.name == "Bob"
+        assert background_tasks is not None
         return created_person
 
     monkeypatch.setattr(personRoutes.personController, "create_person", _fake_create_person)

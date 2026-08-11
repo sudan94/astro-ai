@@ -7,7 +7,12 @@ from app.controller import astroController
 from app.models.ChatSession import ChatSession
 
 
-async def create_person(db: Session, person: personSchema.PersonCreate, current_user):
+async def create_person(
+    db: Session,
+    person: personSchema.PersonCreate,
+    current_user,
+    background_tasks: BackgroundTasks,
+):
     """Create a new person"""
     try:
         db_person = Person(
@@ -22,7 +27,11 @@ async def create_person(db: Session, person: personSchema.PersonCreate, current_
         db.commit()
         db.refresh(db_person)
 
-        BackgroundTasks().add_task(astroController.get_vedic_chart, db=db, person_id=db_person.id)
+        background_tasks.add_task(
+            astroController.generate_chart_in_background,
+            person_id=db_person.id,
+            user_id=current_user.id,
+        )
         return db_person
     except IntegrityError:
         db.rollback()

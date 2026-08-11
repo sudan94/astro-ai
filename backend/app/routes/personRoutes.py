@@ -1,6 +1,6 @@
 from app.controller.authController import get_current_user
 from app.models.User import User
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.config.database import get_db
 from app.schemas import personSchema
@@ -11,9 +11,9 @@ router = APIRouter(prefix="/persons", tags=["persons"])
 
 
 @router.post("", response_model=personSchema.PersonResponse, status_code=status.HTTP_201_CREATED)
-async def create_person_route(person: personSchema.PersonCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def create_person_route(person: personSchema.PersonCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Create a new person"""
-    return await personController.create_person(db, person, current_user)
+    return await personController.create_person(db, person, current_user, background_tasks)
 
 @router.get("", response_model=list[personSchema.PersonResponse])
 def get_all_persons_route(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

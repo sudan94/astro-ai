@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from app.config.database import SessionLocal
 from app.models.Person import Person
 from typing import Dict, Optional
 from app.utilities.astro_calc import calculate_vedic_chart
@@ -11,9 +12,13 @@ from app.utilities.prompts import SYSTEM_PROMPT
 import os
 
 
-async def get_vedic_chart(db: Session, person_id: int) -> Dict:
+async def get_vedic_chart(db: Session, person_id: int, user_id: int) -> Dict:
     # Fetch person details from database
-    person = db.query(Person).filter(Person.id == person_id).first()
+    person = (
+        db.query(Person)
+        .filter(Person.id == person_id, Person.user_id == user_id)
+        .first()
+    )
 
     if not person:
         raise HTTPException(
@@ -52,11 +57,29 @@ async def get_vedic_chart(db: Session, person_id: int) -> Dict:
     return chart_data
 
 
-async def get_saved_astro(db: Session, person_id: int, generate_if_missing: bool = True) -> Astro:
+async def generate_chart_in_background(person_id: int, user_id: int) -> None:
+    """
+    Generate and store a chart outside the request cycle.
+
+    Opens its own session because the request-scoped one from `get_db`
+    is already closed by the time background tasks run.
+    """
+    db = SessionLocal()
+    try:
+        await get_vedic_chart(db, person_id, user_id)
+    finally:
+        db.close()
+
+
+async def get_saved_astro(db: Session, person_id: int, user_id: int, generate_if_missing: bool = True) -> Astro:
     """
     Return saved astro row for a person. Optionally generate if missing.
     """
-    person = db.query(Person).filter(Person.id == person_id).first()
+    person = (
+        db.query(Person)
+        .filter(Person.id == person_id, Person.user_id == user_id)
+        .first()
+    )
     if not person:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -68,7 +91,7 @@ async def get_saved_astro(db: Session, person_id: int, generate_if_missing: bool
         return astro_entry
 
     if generate_if_missing:
-        await get_vedic_chart(db, person_id)
+        await get_vedic_chart(db, person_id, user_id)
         astro_entry = db.query(Astro).filter(Astro.person_id == person_id).first()
         if astro_entry:
             return astro_entry
