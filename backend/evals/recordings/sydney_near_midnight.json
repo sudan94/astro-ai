@@ -1,0 +1,59 @@
+{
+  "case_id": "sydney_near_midnight",
+  "model": "gpt-4.1-nano",
+  "ascendant_sign": "Cancer",
+  "analysis": {
+    "summary": {
+      "core_identity": "A nurturing and emotionally intuitive individual with a strong focus on security and family, driven by a deep connection to emotional and spiritual growth.",
+      "life_focus": "Emphasizes emotional bonds, home life, and inner development, with a natural inclination towards nurturing roles and spiritual pursuits.",
+      "overall_tone": "Sensitive, introspective, and resilient, with a tendency towards deep emotional experiences and a desire for meaningful connections."
+    },
+    "personality": [
+      "Highly intuitive and empathetic, with a strong emotional depth.",
+      "Possesses a caring and protective nature, valuing family and close relationships.",
+      "Resilient in facing emotional challenges, often seeking comfort and security."
+    ],
+    "career": [
+      "Likely to excel in fields related to caregiving, counseling, or social services.",
+      "May find fulfillment in roles that involve nurturing, teaching, or healing.",
+      "Possesses a strategic mind suited for careers requiring emotional intelligence and patience."
+    ],
+    "relationships": [
+      "Values loyalty, emotional intimacy, and deep connections.",
+      "May experience intense emotional bonds and require stability in partnerships.",
+      "Tends to be protective and nurturing towards loved ones."
+    ],
+    "strengths": [
+      "Strong emotional intelligence and empathy.",
+      "Resilience and adaptability in emotional situations.",
+      "Deep sense of loyalty and caring nature."
+    ],
+    "challenges": [
+      "Potential tendency towards emotional sensitivity and moodiness.",
+      "Difficulty in detaching emotionally, which may lead to over-involvement.",
+      "Possible struggles with asserting boundaries in relationships."
+    ],
+    "health_tendencies": [
+      "Prone to stress-related issues due to emotional sensitivity.",
+      "May experience digestive or hormonal imbalances linked to emotional states.",
+      "Requires emotional and spiritual balance for overall well-being."
+    ],
+    "spiritual_path": [
+      "Draws strength from inner reflection, meditation, and spiritual practices.",
+      "Finds fulfillment in connecting with higher consciousness and inner wisdom.",
+      "May pursue spiritual teachings related to emotional healing and self-awareness."
+    ],
+    "key_yogas": [
+      {
+        "name": "Gaja Kesari Yoga",
+        "description": "Formed by the combination of Jupiter and the Moon, indicating wisdom, good fortune, and a nurturing personality."
+      }
+    ],
+    "key_doshas": [
+      {
+        "name": "Kapha Dosha",
+        "description": "Predominance of water and earth elements suggests a tendency towards emotional sensitivity, stability, and potential sluggishness if imbalanced."
+      }
+    ]
+  }
+}
