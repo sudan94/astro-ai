@@ -1,0 +1,23 @@
+# Normalise line endings in the repository.
+#
+# Shell scripts must check out with LF even on Windows. A CRLF shebang makes
+# Linux look for an interpreter literally named "/bin/bash\r", which fails with
+# the very misleading "exec ./entrypoint.sh: no such file or directory".
+* text=auto
+
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Windows-only helpers keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Never touch binaries.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary

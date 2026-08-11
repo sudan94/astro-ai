@@ -26,7 +26,10 @@ COPY . .
 
 EXPOSE 8000
 
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+# Strip any CR characters before making the script executable. A checkout on
+# Windows can leave CRLF endings, which turns the shebang into "/bin/bash\r" and
+# fails at startup with a misleading "no such file or directory". .gitattributes
+# prevents that at checkout; this makes the image correct regardless.
+RUN sed -i 's/\r$//' entrypoint.sh && chmod +x entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]
