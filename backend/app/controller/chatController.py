@@ -1,4 +1,4 @@
-import os
+import logging
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
@@ -7,10 +7,12 @@ from app.models.Chat import Chat, senderEnum
 from app.models.Astro import Astro
 from app.models.Person import Person
 from app.schemas import chatShema
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from app.utilities import context as context_builder
+from app.utilities import llm
+from app.utilities.prompts import CHAT_SYSTEM_PROMPT, TITLE_PROMPT_TEMPLATE
 from typing import List, Dict, Optional
-import json
+
+logger = logging.getLogger(__name__)
 
 
 async def chat_session(db: Session, chat: chatShema.ChatSessionCreate):
@@ -88,7 +90,15 @@ async def llm_chat(db: Session, chat: chatShema.ChatMessageCreate) -> Dict:
         chat_history = await get_chat_history(db, chat.session_id)
 
         if not chat_history:
-            await create_chat_title(db, chat.session_id, chat.message)
+            # Naming the session is cosmetic — never fail the user's message on it.
+            try:
+                await create_chat_title(db, chat.session_id, chat.message)
+            except Exception:  # noqa: BLE001
+                logger.warning(
+                    "Title generation failed for session_id=%s", chat.session_id,
+                    exc_info=True,
+                )
+                db.rollback()
 
         # Save user message
         user_chat = Chat(
@@ -127,58 +137,31 @@ async def llm_chat(db: Session, chat: chatShema.ChatMessageCreate) -> Dict:
 
     except HTTPException:
         raise
-    except Exception as e:
+    except llm.LLMUnavailableError:
         db.rollback()
+        logger.exception("Chat model unavailable for session_id=%s", chat.session_id)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="The astrology assistant is temporarily unavailable. Please try again."
+        )
+    except Exception:
+        db.rollback()
+        # Log the detail, return a generic message: exception text can carry
+        # provider payloads and internal identifiers.
+        logger.exception("Error processing chat for session_id=%s", chat.session_id)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing chat: {str(e)}"
+            detail="Error processing chat"
         )
 
 
 def prepare_astro_context(astro_data: Astro, person_data: Person) -> str:
-    """Prepare astrological context string from Astro and Person models"""
-    context_parts = []
+    """Prepare astrological context string from Astro and Person models.
 
-    if person_data.name:
-        context_parts.append(f"Name: {person_data.name}")
-    if person_data.date_of_birth:
-        context_parts.append(f"Date of Birth: {person_data.date_of_birth.isoformat()}")
-    if person_data.place_of_birth:
-        context_parts.append(f"Place of Birth: {person_data.place_of_birth}")
-    if person_data.latitude and person_data.longitude:
-        context_parts.append(f"Birth Coordinates: ({person_data.latitude}, {person_data.longitude})")
-
-    if astro_data.ascendent_sign:
-        context_parts.append(f"Ascendant Sign: {astro_data.ascendent_sign}")
-
-    if astro_data.summary:
-        context_parts.append(f"\nChart Summary:\n{astro_data.summary}")
-
-    if astro_data.ai_analysis:
-        try:
-            if isinstance(astro_data.ai_analysis, dict):
-                analysis = astro_data.ai_analysis
-            else:
-                analysis = json.loads(astro_data.ai_analysis) if isinstance(astro_data.ai_analysis, str) else {}
-
-            context_parts.append("\nAI Analysis:")
-            context_parts.append(json.dumps(analysis, indent=2))
-        except:
-            pass
-
-    if astro_data.vedic_chart:
-        try:
-            if isinstance(astro_data.vedic_chart, dict):
-                chart = astro_data.vedic_chart
-            else:
-                chart = json.loads(astro_data.vedic_chart) if isinstance(astro_data.vedic_chart, str) else {}
-
-            context_parts.append("\nVedic Chart Data:")
-            context_parts.append(json.dumps(chart, indent=2))
-        except:
-            pass
-
-    return "\n".join(context_parts)
+    Delegates to the context builder, which renders the chart as compact facts
+    instead of raw JSON — see `app/utilities/context.py` for why.
+    """
+    return context_builder.build_astro_context(astro_data, person_data)
 
 
 async def generate_chat_response(
@@ -186,59 +169,60 @@ async def generate_chat_response(
     astro_context: str,
     chat_history: List[Dict]
 ) -> str:
-    """Generate AI response using LLM with astrological context"""
+    """Generate AI response using LLM with astrological context.
 
-    llm = ChatOpenAI(
-        model=os.getenv("OPENAPI_MODEL", "gpt-5-chat-latest"),
-        temperature=0.7,
+    History is trimmed to a token budget before it is replayed, so prompt size
+    (and cost per turn) stays bounded no matter how long the session runs.
+    """
+    trimmed_history = context_builder.trim_history(chat_history)
+
+    if len(trimmed_history) < len(chat_history):
+        logger.info(
+            "chat history trimmed from %d to %d messages",
+            len(chat_history),
+            len(trimmed_history),
+        )
+
+    stats = context_builder.context_stats(astro_context, trimmed_history)
+    logger.info(
+        "chat prompt context_tokens=%d history_tokens=%d history_messages=%d",
+        stats["context_tokens"],
+        stats["history_tokens"],
+        stats["history_messages"],
     )
 
-    system_prompt = """You are a knowledgeable and compassionate Vedic Astrology expert and spiritual advisor.
-You help people understand their birth chart, life path, and spiritual journey based on Vedic astrology principles.
+    messages = [llm.SystemMessage(content=CHAT_SYSTEM_PROMPT)]
 
-Guidelines:
-- Use the provided astrological data to give personalized insights
-- Be empathetic, supportive, and encouraging
-- Explain astrological concepts in clear, understandable language
-- If asked about something not in the chart data, acknowledge it and provide general guidance
-- Maintain a conversational, friendly tone
-- Reference specific aspects of their chart when relevant
-- Help them understand how their chart influences their life, personality, and path
-"""
-
-    # Build conversation messages
-    messages = [SystemMessage(content=system_prompt)]
-
-    # Add astrological context as a system message
     if astro_context:
-        messages.append(SystemMessage(
+        messages.append(llm.SystemMessage(
             content=f"Astrological Context for this person:\n{astro_context}"
         ))
 
-    # Add chat history
-    for msg in chat_history:
+    for msg in trimmed_history:
         if msg["role"] == "user":
-            messages.append(HumanMessage(content=msg["content"]))
+            messages.append(llm.HumanMessage(content=msg["content"]))
         elif msg["role"] == "assistant":
-            messages.append(AIMessage(content=msg["content"]))
+            messages.append(llm.AIMessage(content=msg["content"]))
 
-    # Add current user message
-    messages.append(HumanMessage(content=user_message))
+    messages.append(llm.HumanMessage(content=user_message))
 
-    # Generate response
-    response = await llm.ainvoke(messages)
+    response, _call = await llm.ainvoke_text(
+        messages,
+        operation="chat_reply",
+        temperature=0.7,
+    )
 
-    return response.content
+    return response
+
 
 async def create_chat_title(db: Session, session_id: int, message: str) -> ChatSession:
     """Update the title of a chat session"""
-    llm = ChatOpenAI(
-        model=os.getenv("OPENAPI_MODEL", "gpt-5-chat-latest"),
+    response, _call = await llm.ainvoke_text(
+        [llm.HumanMessage(content=TITLE_PROMPT_TEMPLATE.format(message=message))],
+        operation="chat_title",
         temperature=0.7,
     )
-    title_prompt = f"Generate a concise and relevant title for the following chat session message:\n\n{message}\n\nTitle:"
-    response = await llm.ainvoke([HumanMessage(content=title_prompt)])
-    title = response.content.strip().strip('"')
+    title = response.strip().strip('"')[:120] or "New Chat"
 
     chat_session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
     if not chat_session:

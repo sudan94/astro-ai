@@ -15,6 +15,28 @@ if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
 
+import json
+
+# A schema-valid analysis, so the stubbed model exercises the success path of
+# `ainvoke_structured` rather than burning through its repair rounds.
+STUB_ANALYSIS = {
+    "summary": {
+        "core_identity": "Stubbed identity.",
+        "life_focus": "Stubbed focus.",
+        "overall_tone": "Stubbed tone.",
+    },
+    "personality": ["Stubbed personality trait."],
+    "career": ["Stubbed career note."],
+    "relationships": ["Stubbed relationship note."],
+    "strengths": ["Stubbed strength."],
+    "challenges": ["Stubbed challenge."],
+    "health_tendencies": [],
+    "spiritual_path": [],
+    "key_yogas": [],
+    "key_doshas": [],
+}
+
+
 def _install_langchain_stubs() -> None:
     if "langchain_openai" not in sys.modules:
         langchain_openai = types.ModuleType("langchain_openai")
@@ -25,7 +47,10 @@ def _install_langchain_stubs() -> None:
                 self.kwargs = kwargs
 
             async def ainvoke(self, messages):
-                return types.SimpleNamespace(content='{"summary": {}}')
+                return types.SimpleNamespace(
+                    content=json.dumps(STUB_ANALYSIS),
+                    usage_metadata={"input_tokens": 100, "output_tokens": 50},
+                )
 
         langchain_openai.ChatOpenAI = ChatOpenAI
         sys.modules["langchain_openai"] = langchain_openai

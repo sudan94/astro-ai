@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from app.config.database import get_db
 from app.controller import astroController
@@ -10,10 +10,20 @@ from app.schemas import astroSchema
 router = APIRouter(prefix="/astro", tags=["astro"])
 
 @router.get("/vedic-chart/{person_id}")
-async def get_vedic_chart_route(person_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def get_vedic_chart_route(
+    person_id: int,
+    refresh: bool = Query(
+        False,
+        description="Regenerate the AI analysis instead of reusing the stored one.",
+    ),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Get Vedic astrology chart for a person by ID"""
 
-    chart_data = await astroController.get_vedic_chart(db, person_id, current_user.id)
+    chart_data = await astroController.get_vedic_chart(
+        db, person_id, current_user.id, refresh=refresh
+    )
     return chart_data
 
 
